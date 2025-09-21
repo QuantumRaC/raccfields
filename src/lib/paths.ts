@@ -3,7 +3,7 @@ export const paths = {
   about: "/",
   dev: "/dev",
   security: "/security",
-  music: "/guitar",
+  music: "/music",
   art: "/art",
   blog: "/blog",
 }

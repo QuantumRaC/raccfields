@@ -10,18 +10,18 @@ const Title = () => {
   return (
     <section className="flex flex-col items-end justify-center text-center min-h-[80vh] px-6">
       <h1 className="text-5xl md:text-7xl font-mono font-thin mb-12 text-foreground">
-        Security
+        Art
       </h1>
 
       <p className="text-lg md:text-base max-w-2xl font-mono font-semithin text-muted-foreground whitespace-pre-line">
-        This is my security page.
+        This is my art page.
       </p>
 
     </section>
   )
 };
 
-export default function Sec() {
+export default function Art() {
   return (
     <div>
       <div className="p-6 flex items-center">
