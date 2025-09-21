@@ -10,6 +10,37 @@ import ModeToggle from "@/components/layout/theme-toggle"
 
 import { paths } from "@/lib/paths"
 
+const PageHeroAnonymous = () => {
+  return (
+    <section className="flex flex-col justify-center min-h-[80vh] px-6 text-left items-start">
+      <h1 className="text-5xl md:text-4xl font-mono font-thin mb-12 text-foreground">
+        <ReactTyped
+          strings={[
+            ">_ booting sequence..",  
+            ">_ system online", 
+            ">_ access granted", 
+            ">_ entering RaccFields..",
+            ">_ user: An0nymou5",
+            ">_ welcome."
+          ]}
+          typeSpeed={30}
+          backSpeed={20}
+          loop={true}
+          showCursor={true}
+          cursorChar="_"
+        />
+      </h1>
+
+      <p className="text-lg md:text-base max-w-2xl font-mono font-semibold text-muted-foreground whitespace-pre-line">
+        {`:: sys id: raccfields v1.0 ::
+:: core: Next.js | TailwindCSS | Vercel | GitHub ::
+:: aux: Shadcn UI ::
+:: status: beta (dev) ::`}
+      </p>
+    </section>
+  )
+}
+
 const PageHero = () => {
   return (
     <section className="flex flex-col items-center justify-center text-center min-h-[80vh] px-6">
@@ -56,7 +87,8 @@ export default function Home() {
           <ModeToggle />
         </div>
       </div>
-      <PageHero />
+      {/* <PageHero /> */}
+      <PageHeroAnonymous />
     </div>
   );
 }
