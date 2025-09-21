@@ -13,7 +13,7 @@ const Title = () => {
         Blogs
       </h1>
 
-      <p className="text-lg md:text-base max-w-2xl font-mono font-semithin text-muted-foreground whitespace-pre-line">
+      <p className="text-lg md:text-base max-w-2xl font-mono font-semibold text-muted-foreground whitespace-pre-line">
         This is my blogs page.
       </p>
 

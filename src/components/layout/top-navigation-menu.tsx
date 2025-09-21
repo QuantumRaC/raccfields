@@ -57,17 +57,17 @@ const TopNavigationMenu = () => {
   return (
     // https://ui.shadcn.com/docs/components/navigation-menu
     <NavigationMenu viewport={false}>
-      <NavigationMenuList>
+      <NavigationMenuList className="font-mono">
 
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href={paths.about}>About Me</Link>
+            <Link href={paths.about} className="font-semibold text-muted-foreground">About Me</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
 
         <NavigationMenuItem>
           <NavigationMenuTrigger>
-            <Link href={paths.dev}>Dev</Link>
+            <Link href={paths.dev} className="font-semibold text-muted-foreground">Dev</Link>
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
@@ -86,7 +86,7 @@ const TopNavigationMenu = () => {
 
         <NavigationMenuItem>
           <NavigationMenuTrigger>
-            <Link href={paths.security}>Security</Link>
+            <Link href={paths.security} className="font-semibold text-muted-foreground">Security</Link>
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
@@ -105,19 +105,19 @@ const TopNavigationMenu = () => {
 
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href={paths.music}>Music</Link>
+            <Link href={paths.music} className="font-semibold text-muted-foreground">Music</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
 
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href={paths.art}>Art</Link>
+            <Link href={paths.art} className="font-semibold text-muted-foreground">Art</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
 
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href={paths.blog}>All Blogs</Link>
+            <Link href={paths.blog} className="font-semibold text-muted-foreground">All Blogs</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
 

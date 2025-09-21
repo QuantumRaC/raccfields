@@ -31,8 +31,13 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="red"
           enableSystem
+          value={{
+            light: "light",
+            dark: "dark",
+            red: "red",
+          }}
           disableTransitionOnChange
         >
           {children}

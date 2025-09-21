@@ -26,7 +26,7 @@ const PageHero = () => {
         />
       </h1>
 
-      <p className="text-lg md:text-base max-w-2xl font-mono font-semithin text-muted-foreground whitespace-pre-line">
+      <p className="text-lg md:text-base max-w-2xl font-mono font-semibold text-muted-foreground whitespace-pre-line">
         <Link href={paths.security} className="hover:underline">
           Cybersecurity enthusiast
         </Link>
