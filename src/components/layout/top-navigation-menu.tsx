@@ -16,7 +16,7 @@ import { paths } from "@/lib/paths"
 const devComponents: { title: string; href: string; description: string }[] = [
   {
     title: "T3xtAnlys",
-    href: "/docs/primitives/alert-dialog", //TODO
+    href: paths.textanlys, //TODO
     description:
       "NLP tool for style, grammar, and sentiment analysis",
   },
