@@ -82,17 +82,22 @@ export default function TextAnlys() {
       }
 
       console.log("[DEBUG] Parsing JSON response...")
-      let data: any
+      let data: { language?: string; analysis?: string; error?: string }
       try {
-        data = await res.json()
+        data = (await res.json()) as { language?: string; analysis?: string; error?: string }
       } catch (jsonErr) {
         console.error("[FAILURE] Invalid JSON received from backend", jsonErr)
         setError("Invalid response from server.")
         throw jsonErr
       }
 
+      if (data.error) {
+        setError(data.error)
+        return
+      }
+
       console.log("[SUCCESS] Backend response received:", data)
-      setAnalysisResult(data.analysis)
+      setAnalysisResult(data.analysis || "")
 
     } catch (err: unknown) {
       if (err instanceof TypeError && err.message === "Failed to fetch") {
@@ -111,7 +116,6 @@ export default function TextAnlys() {
     }
   }
 
-  // ✅ Return JSX outside handleSubmit
   return (
     <div>
       <div className="p-6 flex items-center">
