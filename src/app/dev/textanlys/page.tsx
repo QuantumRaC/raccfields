@@ -54,16 +54,9 @@ const AnalysisDisplay = ({ analysisResult, isLoading, error }: AnalysisDisplayPr
   )
 }
 
-// const res = await fetch(paths.textanalysis, {
-//   method: "POST",
-//   headers: { "Content-Type": "application/json" },
-//   body: JSON.stringify({ text: "This is a test." })
-// });
-
 export default function TextAnlys() {
   const [inp, setInp] = useState("")
-  const [analysisResult, setAnalysisResult] = useState("")
-
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -89,7 +82,7 @@ export default function TextAnlys() {
       }
 
       console.log("[DEBUG] Parsing JSON response...")
-      let data;
+      let data: any
       try {
         data = await res.json()
       } catch (jsonErr) {
@@ -102,7 +95,6 @@ export default function TextAnlys() {
       setAnalysisResult(data.analysis)
 
     } catch (err: unknown) {
-      // Narrow the type
       if (err instanceof TypeError && err.message === "Failed to fetch") {
         console.error("[FAILURE] Network error: Could not reach backend")
         setError("Network error: Please check your connection or try again later.")
@@ -117,41 +109,39 @@ export default function TextAnlys() {
       setIsLoading(false)
       console.log("[MILESTONE] Request cycle complete.")
     }
-    return (
-      <div>
-        <div className="p-6 flex items-center">
-          {/* Left side empty (spacer) */}
-          <div className="flex-1" />
-          <div>
-            <TopNavigationMenu />
-          </div>
-          <div className="flex-1 flex justify-end">
-            <ModeToggle />
-          </div>
+  }
+
+  // ✅ Return JSX outside handleSubmit
+  return (
+    <div>
+      <div className="p-6 flex items-center">
+        <div className="flex-1" />
+        <div>
+          <TopNavigationMenu />
         </div>
-        <Title />
-        <div className="font-mono w-[90%] mx-auto">
-          <TextareaWithText
-            id="text-analyze"
-            label="Subject Literature"
-            placeholder="Insert text to be analyzed."
-            helperText="Enter text in English or Simplified Chinese."
-            value={inp}
-            buttonId="analyze-btn"
-            buttonText="Analyze"
-            onChange={setInp}
-            onButtonClick={handleSubmit}
-          />
-          {/* <p className="font-mono justify-center">
-          Current Input Text: {inp}
-        </p> */}
-          <AnalysisDisplay
-            analysisResult={analysisResult}
-            isLoading={isLoading}
-            error={error}
-          />
+        <div className="flex-1 flex justify-end">
+          <ModeToggle />
         </div>
       </div>
-    );
-  }
+      <Title />
+      <div className="font-mono w-[90%] mx-auto">
+        <TextareaWithText
+          id="text-analyze"
+          label="Subject Literature"
+          placeholder="Insert text to be analyzed."
+          helperText="Enter text in English or Simplified Chinese."
+          value={inp}
+          buttonId="analyze-btn"
+          buttonText="Analyze"
+          onChange={setInp}
+          onButtonClick={handleSubmit}
+        />
+        <AnalysisDisplay
+          analysisResult={analysisResult}
+          isLoading={isLoading}
+          error={error}
+        />
+      </div>
+    </div>
+  )
 }
