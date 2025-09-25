@@ -46,7 +46,7 @@ const AnalysisDisplay = ({ analysisResult, isLoading }: AnalysisDisplayProps) =>
       <h2 className="font-bold mb-2">Analysis:</h2>
       <div className="prose max-w-none dark:prose-invert font-mono text-sm">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          Waiting for analysis result.. Please don't submit twice.
+          {"Waiting for analysis result.. Please don't submit twice."}
         </ReactMarkdown>
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
