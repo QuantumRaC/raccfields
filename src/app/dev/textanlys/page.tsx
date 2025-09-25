@@ -25,40 +25,29 @@ const Title = () => {
   )
 };
 
-type AnalysisDisplayProps = {
-  analysisResult?: string | null
+interface AnalysisDisplayProps {
+  analysisResult: string | null
   isLoading: boolean
+  error?: string
 }
 
-const AnalysisDisplay = ({ analysisResult, isLoading }: AnalysisDisplayProps) => {
-  if (!analysisResult && !isLoading) return (
-    <div className="mt-6">
-      <h2 className="font-bold mb-2">Analysis:</h2>
-      <div className="prose max-w-none dark:prose-invert font-mono text-sm">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          Awaiting input text.
-        </ReactMarkdown>
-      </div>
-    </div>
-  )
-  else if(!analysisResult && isLoading) return (
-    <div className="mt-6">
-      <h2 className="font-bold mb-2">Analysis:</h2>
-      <div className="prose max-w-none dark:prose-invert font-mono text-sm">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {"Waiting for analysis result.. Please don't submit twice."}
-        </ReactMarkdown>
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    </div>
-  )
+const AnalysisDisplay = ({ analysisResult, isLoading, error }: AnalysisDisplayProps) => {
+  let content: string = "Awaiting input text."
+
+  if (error) {
+    content = `**Error:** ${error}`
+  } else if (isLoading) {
+    content = "_Waiting for analysis result.. Please don't submit twice._"
+  } else if (analysisResult) {
+    content = analysisResult
+  }
 
   return (
     <div className="mt-6">
       <h2 className="font-bold mb-2">Analysis:</h2>
-      <div className="prose max-w-none dark:prose-invert font-mono text-sm">
+      <div className="prose max-w-none dark:prose-invert font-mono text-xs font-thin">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {analysisResult}
+          {content}
         </ReactMarkdown>
       </div>
     </div>
@@ -76,12 +65,14 @@ export default function TextAnlys() {
   const [analysisResult, setAnalysisResult] = useState("")
 
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleSubmit = async () => {
     console.log("Submit button clicked.")
     console.log("Submitted text:", inp)
 
     setIsLoading(true)
+    setError("") // clear previous error
 
     try {
       console.log("[DEBUG] Sending request to backend...")
@@ -93,16 +84,32 @@ export default function TextAnlys() {
 
       if (!res.ok) {
         console.error(`[ERROR] Server responded with status ${res.status}`)
+        setError(`Server error: ${res.status}`)
         throw new Error(`Server error: ${res.status}`)
       }
 
       console.log("[DEBUG] Parsing JSON response...")
-      const data = await res.json()
-      console.log("[SUCCESS] Backend response received:", data)
+      let data;
+      try {
+        data = await res.json()
+      } catch (jsonErr) {
+        console.error("[FAILURE] Invalid JSON received from backend", jsonErr)
+        setError("Invalid response from server.")
+        throw jsonErr
+      }
 
+      console.log("[SUCCESS] Backend response received:", data)
       setAnalysisResult(data.analysis)
-    } catch (err) {
-      console.error("[FAILURE] Error fetching analysis:", err)
+
+    } catch (err: any) {
+      // Handle network errors like "Failed to fetch"
+      if (err instanceof TypeError && err.message === "Failed to fetch") {
+        console.error("[FAILURE] Network error: Could not reach backend")
+        setError("Network error: Please check your connection or try again later.")
+      } else {
+        console.error("[FAILURE] Error fetching analysis:", err)
+        if (!error) setError(err.message || "An unknown error occurred.")
+      }
     } finally {
       setIsLoading(false)
       console.log("[MILESTONE] Request cycle complete.")
@@ -137,7 +144,11 @@ export default function TextAnlys() {
         {/* <p className="font-mono justify-center">
           Current Input Text: {inp}
         </p> */}
-        <AnalysisDisplay analysisResult={analysisResult} isLoading={isLoading}/>
+        <AnalysisDisplay
+          analysisResult={analysisResult}
+          isLoading={isLoading}
+          error={error}
+        />
       </div>
     </div>
   );
