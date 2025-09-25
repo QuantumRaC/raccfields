@@ -101,55 +101,56 @@ export default function TextAnlys() {
       console.log("[SUCCESS] Backend response received:", data)
       setAnalysisResult(data.analysis)
 
-    } catch (err: any) {
-      // Handle network errors like "Failed to fetch"
+    } catch (err: unknown) {
+      // Narrow the type
       if (err instanceof TypeError && err.message === "Failed to fetch") {
         console.error("[FAILURE] Network error: Could not reach backend")
         setError("Network error: Please check your connection or try again later.")
-      } else {
+      } else if (err instanceof Error) {
         console.error("[FAILURE] Error fetching analysis:", err)
         if (!error) setError(err.message || "An unknown error occurred.")
+      } else {
+        console.error("[FAILURE] Unknown error:", err)
+        setError("An unknown error occurred.")
       }
     } finally {
       setIsLoading(false)
       console.log("[MILESTONE] Request cycle complete.")
     }
-  }
-
-  return (
-    <div>
-      <div className="p-6 flex items-center">
-        {/* Left side empty (spacer) */}
-        <div className="flex-1" />
-        <div>
-          <TopNavigationMenu />
+    return (
+      <div>
+        <div className="p-6 flex items-center">
+          {/* Left side empty (spacer) */}
+          <div className="flex-1" />
+          <div>
+            <TopNavigationMenu />
+          </div>
+          <div className="flex-1 flex justify-end">
+            <ModeToggle />
+          </div>
         </div>
-        <div className="flex-1 flex justify-end">
-          <ModeToggle />
-        </div>
-      </div>
-      <Title />
-      <div className="font-mono w-[90%] mx-auto">
-        <TextareaWithText
-          id="text-analyze"
-          label="Subject Literature"
-          placeholder="Insert text to be analyzed."
-          helperText="Enter text in English or Simplified Chinese."
-          value={inp}
-          buttonId="analyze-btn"
-          buttonText="Analyze"
-          onChange={setInp}
-          onButtonClick={handleSubmit}
-        />
-        {/* <p className="font-mono justify-center">
+        <Title />
+        <div className="font-mono w-[90%] mx-auto">
+          <TextareaWithText
+            id="text-analyze"
+            label="Subject Literature"
+            placeholder="Insert text to be analyzed."
+            helperText="Enter text in English or Simplified Chinese."
+            value={inp}
+            buttonId="analyze-btn"
+            buttonText="Analyze"
+            onChange={setInp}
+            onButtonClick={handleSubmit}
+          />
+          {/* <p className="font-mono justify-center">
           Current Input Text: {inp}
         </p> */}
-        <AnalysisDisplay
-          analysisResult={analysisResult}
-          isLoading={isLoading}
-          error={error}
-        />
+          <AnalysisDisplay
+            analysisResult={analysisResult}
+            isLoading={isLoading}
+            error={error}
+          />
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
