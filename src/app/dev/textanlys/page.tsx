@@ -25,7 +25,12 @@ const Title = () => {
   )
 };
 
-const AnalysisDisplay = ({ analysisResult, isLoading }) => {
+type AnalysisDisplayProps = {
+  analysisResult?: string | null
+  isLoading: boolean
+}
+
+const AnalysisDisplay = ({ analysisResult, isLoading }: AnalysisDisplayProps) => {
   if (!analysisResult && !isLoading) return (
     <div className="mt-6">
       <h2 className="font-bold mb-2">Analysis:</h2>
