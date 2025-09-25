@@ -11,5 +11,6 @@ export const paths = {
   art: "/art",
   blog: "/blog",
 
-  textanalysis: "http://127.0.0.1:8000/analyze"
+  textanalysis: "https://t3xtanlys.onrender.com/analyze"
+  // "http://127.0.0.1:8000/analyze"
 }

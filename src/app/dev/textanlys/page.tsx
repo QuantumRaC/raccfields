@@ -132,7 +132,7 @@ export default function TextAnlys() {
         {/* <p className="font-mono justify-center">
           Current Input Text: {inp}
         </p> */}
-        <AnalysisDisplay analysisResult={analysisResult}/>
+        <AnalysisDisplay analysisResult={analysisResult} isLoading={isLoading}/>
       </div>
     </div>
   );
