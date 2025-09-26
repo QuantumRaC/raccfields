@@ -46,7 +46,7 @@ export default function Sec() {
           </CardHeader>
           <CardContent>
             <p className="font-light text-sm leading-6 mt-2 mb-2 text-muted-foreground">
-              I am a <strong>cybersecurity enthusiast</strong> and a Junior Computer Science major at the University of Florida.
+              I am a <strong>cybersecurity enthusiast</strong> and a Junior Computer Science major.
             </p>
             <p className="font-light text-sm leading-6 mt-2 mb-2 text-muted-foreground">
               My focus is on <strong>practical security skills</strong>, including vulnerability assessment, reverse engineering, cryptography, and secure system design.
