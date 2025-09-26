@@ -1,7 +1,7 @@
 "use client"
 import * as React from "react"
 import { ReactTyped } from "react-typed"
-
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import Link from "next/link"
 import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react"
 import Footer from "@/components/layout/footer-box"
