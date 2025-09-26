@@ -4,7 +4,7 @@ import { ReactTyped } from "react-typed"
 
 import Link from "next/link"
 import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react"
-
+import Footer from "@/components/layout/footer-box"
 import TopNavigationMenu from "@/components/layout/top-navigation-menu"
 import ModeToggle from "@/components/layout/theme-toggle"
 
@@ -63,12 +63,14 @@ const PageHero = () => {
         </Link>
         {`, `}
         <Link href={paths.dev} className="hover:underline">
-          full-stack developer, and AI/ML engineer.
+          full-stack developer and AI/ML engineer.
         </Link>
         {`
-  Junior Computer Science major at the University of Florida.
-  This is my space — welcome to raccfields.`}
+  Junior Computer Science major at the University of Florida.  
+  Passionate about applying AI, NLP, and software engineering skills to real-world problems.  
+  Explore my projects, security writeups, and personal experiments — welcome to Raccfields.`}
       </p>
+
 
     </section>
   )
@@ -89,6 +91,7 @@ export default function Home() {
       </div>
       {/* <PageHero /> */}
       <PageHeroAnonymous />
+      <Footer />
     </div>
   );
 }

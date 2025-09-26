@@ -3,6 +3,7 @@ import * as React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import TopNavigationMenu from "@/components/layout/top-navigation-menu"
+import Footer from "@/components/layout/footer-box"
 import ModeToggle from "@/components/layout/theme-toggle"
 import TextareaWithText from "@/components/layout/text-area-with-text"
 import { Loader2 } from "lucide-react"
@@ -20,8 +21,8 @@ const Title = () => {
       </h1>
 
       <p className="text-lg md:text-base max-w-2xl font-mono font-semibold text-muted-foreground whitespace-pre-line">
-        A lightweight text analysis tool that examines writing style, word choice, grammatical structures, and sentiment using NLP techniques. It extracts key linguistic patterns and statistical measures to help understand how writing techniques shape the tone and style of a text with NLP and GenAI.
-      </p>
+        T3xtAnlys helps writers, editors, and researchers quickly understand the tone, style, and structure of any text. Powered by spaCy and AI, it identifies key linguistic patterns, sentiment, and readability metrics, turning complex text into actionable insights — making writing analysis faster, easier, and more effective.
+        </p>
 
     </section>
   )
@@ -56,23 +57,6 @@ const AnalysisDisplay = ({ analysisResult, isLoading, error }: AnalysisDisplayPr
   )
 }
 
-const toolDescription = `
-## **What to know about this tool**  
-
-
-This is a **beta release** and **a work in progress**.  
-T3xtAnlys (name still subject to change) is an experimental lightweight text analysis tool that combines traditional NLP methods (spaCy, statistical metrics, language detection) with generative AI (Google Gemini) to provide insights into writing style, word choice, grammar structures, and sentiment.  
-
-The project’s goal is to **describe writing styles in a more statistical and quantitative way**, showing how technology can bridge hard data with more sentimental and qualitative aspects of language such as tone, emotion, and style. I originally started this project while reflecting on my own writing, curious about what NLP data of different styles might reveal. Generative AI was introduced almost as a *writing instructor* interpreting the raw statistics into human-friendly feedback. I chose to implement it for both English and Simplified Chinese because these are the two languages I write in, and as a bilingual person both are equally significant to me.
-
-### **Current limitations**  
-- Occasional inaccuracies in language detection, especially with mixed-language text.  
-- Generative feedback may vary in quality or verbosity, depending on the input.  
-- Processing large text blocks can be memory-intensive on limited hosting environments.  
-
-This is not a production-ready system, but a demonstration of how **classical NLP** and **modern LLMs** can work together in a cohesive workflow. Feedback and contributions are welcome. The project will continue to evolve as new techniques are explored.  
-
-`
 
 export default function TextAnlys() {
   const [inp, setInp] = useState("")
@@ -153,7 +137,7 @@ export default function TextAnlys() {
           id="text-analyze"
           label="Subject Literature"
           placeholder="Insert text to be analyzed."
-          helperText="Enter text in English or Simplified Chinese."
+          helperText="Enter text in English. (Note: Simplified Chinese is supported as well but feedback is very unstable due to server memory limitations.)"
           value={inp}
           buttonId="analyze-btn"
           buttonText="Analyze"
@@ -179,6 +163,7 @@ export default function TextAnlys() {
           <p className="font-thin text-sm">
             - Feedback limited to 250 words/characters temporarily due to Google Gemini Limitations.<br />
             - Feedback waiting time can vary and can also be unstable due to limited backend requests and memory use, since this tool is still in beta.<br />
+            - Requests per IP is limited to 30/minute and 500/day.
             - Processing large text blocks can be memory-intensive on limited hosting environments.<br /><br />
             This is not a production-ready system, but a demonstration of how <strong>classical NLP</strong> and <strong>modern LLMs</strong> can work together in a cohesive workflow. Feedback and contributions are welcome. The project will continue to evolve as new techniques are explored.
           </p>
@@ -208,7 +193,9 @@ export default function TextAnlys() {
           <br /><p className="font-thin text-sm">For full source code and implementation details, see  
             <Link href="https://github.com/QuantumRaC/T3xtAnlys" className="hover:underline"> GitHub repository.</Link></p>
         </div>
+        
       </div>
+      <Footer />
     </div>
   )
 }

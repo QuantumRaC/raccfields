@@ -30,7 +30,7 @@ const devComponents: { title: string; href: string; description: string }[] = [
 const secComponents: { title: string; href: string; description: string }[] = [
   {
     title: "Notes Archive",
-    href: "/docs/primitives/alert-dialog", //TODO
+    href: paths.sec_notes, //TODO
     description:
       "Archive of personal notes while learning cybersecurity",
   },

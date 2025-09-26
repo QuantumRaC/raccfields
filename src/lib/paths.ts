@@ -7,6 +7,7 @@ export const paths = {
   textanlys: "/dev/textanlys",
 
   security: "/security",
+  sec_notes:"https://github.com/QuantumRaC/Cybersec-Archive",
   music: "/music",
   art: "/art",
   blog: "/blog",

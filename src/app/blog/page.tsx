@@ -1,6 +1,6 @@
 "use client"
 import * as React from "react"
-
+import Footer from "@/components/layout/footer-box"
 import TopNavigationMenu from "@/components/layout/top-navigation-menu"
 import ModeToggle from "@/components/layout/theme-toggle"
 
@@ -8,7 +8,7 @@ import { paths } from "@/lib/paths"
 
 const Title = () => {
   return (
-    <section className="flex flex-col items-end justify-center text-center min-h-[80vh] px-6">
+    <section className="flex flex-col items-end justify-center text-center min-h-[70vh] px-6">
       <h1 className="text-5xl md:text-7xl font-mono font-thin mb-12 text-foreground">
         Blogs
       </h1>
@@ -35,6 +35,7 @@ export default function Sec() {
         </div>
       </div>
       <Title />
+      <Footer />
     </div>
   );
 }
