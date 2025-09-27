@@ -89,8 +89,8 @@ export default function Home() {
           <ModeToggle />
         </div>
       </div>
-      {/* <PageHero /> */}
-      <PageHeroAnonymous />
+      <PageHero />
+      {/* <PageHeroAnonymous /> */}
       <Footer />
     </div>
   );

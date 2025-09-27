@@ -9,7 +9,7 @@ const Footer = () => {
           <Link href="https://github.com/QuantumRaC" target="_blank" aria-label="GitHub" className="text-muted-foreground hover:text-foreground transition-colors">
             <GithubIcon className="w-5 h-5" />
           </Link>
-          <Link href="TODO" target="_blank" aria-label="LinkedIn" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="https://www.linkedin.com/in/xinyi-yao-7731ab338/" target="_blank" aria-label="LinkedIn" className="text-muted-foreground hover:text-foreground transition-colors">
             <LinkedinIcon className="w-5 h-5" />
           </Link>
           <Link href="mailto:yao.xinyi@ufl.edu" aria-label="Email" className="text-muted-foreground hover:text-foreground transition-colors">

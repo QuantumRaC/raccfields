@@ -103,7 +103,7 @@ const TopNavigationMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        <NavigationMenuItem>
+        {/* <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href={paths.music} className="font-semibold text-muted-foreground">Music</Link>
           </NavigationMenuLink>
@@ -113,7 +113,7 @@ const TopNavigationMenu = () => {
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href={paths.art} className="font-semibold text-muted-foreground">Art</Link>
           </NavigationMenuLink>
-        </NavigationMenuItem>
+        </NavigationMenuItem> */}
 
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
