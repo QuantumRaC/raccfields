@@ -64,15 +64,15 @@ export default function Blog() {
       <Title />
       <section className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold mb-6">All Blogs</h1>
-        <div className="grid gap-6">
+        <div className="grid gap-6 font-sans mt-12 mb-16 space-y-4">
           {posts.map((post) => (
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
               className="block p-4 border rounded-lg hover:bg-accent"
             >
-              <h2 className="text-xl font-semibold">{post.title}</h2>
-              <p className="text-sm text-muted-foreground">{post.description}</p>
+              <h2 className="font-mono text-lg md:text-xl text-foreground m-4 mt-2 mb-6 font-semibold">{post.title}</h2>
+              <p className="font-light text-sm leading-5 m-4 text-muted-foreground">{post.description}</p>
               <span className="text-xs text-foreground">{post.date}</span>
             </Link>
           ))}

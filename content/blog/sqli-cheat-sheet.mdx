@@ -1,0 +1,200 @@
+---
+title: "SQLi Cheat Sheet — quick reference"
+slug: "sqli-cheatsheet"
+date: "2025-08-08"
+author: "Cynthia Yao"
+tags: ["Security", "Cheatsheet"]
+description: "One-page engineer cheat sheet: grants, quick tests, and a tiny pytest that checks a parameterized query doesn't leak on a classic payload."
+---
+
+# SQLi — engineer cheat sheet (one page)
+
+This is a compact, runnable cheat sheet you can pin to a repo. *Keeps the same pragmatic tone as the blog — short, direct, and testable.*
+
+---
+
+## 1) Quick DB account / GRANT examples
+
+> *Postgres (psql)* — create a limited app role, grant only what it needs:
+
+```sql
+-- connect as a superuser (psql -U postgres)
+CREATE ROLE app_user WITH LOGIN PASSWORD 'strongpassword';
+GRANT CONNECT ON DATABASE mydb TO app_user;
+GRANT USAGE ON SCHEMA public TO app_user;
+
+-- grant only on specific tables
+GRANT SELECT, INSERT, UPDATE ON TABLE public.users, public.posts TO app_user;
+
+-- keep migrations / admin separate
+CREATE ROLE db_migrator WITH LOGIN PASSWORD 'migratorpass';
+GRANT ALL PRIVILEGES ON SCHEMA public TO db_migrator;
+````
+
+> *MySQL* — create a restricted runtime user:
+
+```sql
+-- connect as root
+CREATE USER 'app_user'@'10.0.0.0/24' IDENTIFIED BY 'strongpassword';
+GRANT SELECT, INSERT, UPDATE ON mydb.users TO 'app_user'@'10.0.0.0/24';
+GRANT SELECT, INSERT, UPDATE ON mydb.posts TO 'app_user'@'10.0.0.0/24';
+FLUSH PRIVILEGES;
+```
+
+**Notes:**
+
+* Use least privilege: do *not* give `DROP`, `CREATE`, or `GRANT` to runtime app users.
+* Prefer IP-restricted accounts where possible and rotate passwords/credentials via your secrets manager.
+* Put internal/admin operations behind a separate account and CI/CD pipeline.
+
+---
+
+## 2) Minimal safe query patterns (examples)
+
+**Python / sqlite (parameterized):**
+
+```py
+def get_user_by_username(con, username):
+    cur = con.cursor()
+    cur.execute("SELECT id, username, email FROM users WHERE username = ?", (username,))
+    return cur.fetchall()
+```
+
+**Node / pg (parameterized):**
+
+```js
+const param = `%${q}%`;
+const { rows } = await pool.query('SELECT title FROM posts WHERE title LIKE $1', [param]);
+```
+
+**Why it works:** placeholders are bound as *values* not parsed into SQL.
+
+---
+
+## 3) Quick identifier whitelist pattern
+
+If you must accept a table/column name from code (rare), validate it:
+
+```py
+allowed = {"users", "posts", "comments"}
+if table_name not in allowed:
+    raise ValueError("invalid table")
+sql = f"SELECT id FROM {table_name} WHERE id = ?"
+```
+
+Or use driver helpers (Postgres psycopg2 example):
+
+```py
+from psycopg2 import sql
+query = sql.SQL("SELECT {} FROM {} WHERE id = %s").format(
+    sql.Identifier('id'),
+    sql.Identifier(table_name)  # still validate this against a whitelist
+)
+cur.execute(query, (some_id,))
+```
+
+---
+
+## 4) CI / test checklist (short)
+
+* Add automated tests exercising classic payloads: `"' OR '1'='1"`, `--`, `UNION SELECT ...`, `sqrt(0)`, etc.
+* Integration test: run injection payloads against **staging** endpoints (with permission) and fail the build if leaked data is returned.
+* Monitor logs for suspicious patterns: repeated `UNION SELECT`, frequent access to `information_schema`/`sqlite_master`.
+* Add rate limits for suspicious paths (auth endpoints, search endpoints).
+
+---
+
+## 5) Tiny `pytest` example — asserts parameterized query doesn't leak on `"' OR '1'='1'"`
+
+This is intentionally minimal and self-contained using `sqlite3` in-memory. Put this file under `tests/test_sqli_param.py` and run `pytest -q`.
+
+```py
+# tests/test_sqli_param.py
+import sqlite3
+import pytest
+
+PAYLOAD = "' OR '1'='1"   # classic naive payload
+
+def setup_db():
+    con = sqlite3.connect(":memory:")
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    cur.execute("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)")
+    # seed with a known admin user only
+    cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", ("admin", "s3cr3t"))
+    cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", ("guest", "password"))
+    con.commit()
+    return con
+
+# vulnerable function (for demonstration)
+def vulnerable_query(con, username):
+    # BAD: string interpolation
+    sql = f"SELECT id, username FROM users WHERE username = '{username}'"
+    cur = con.cursor()
+    cur.execute(sql)
+    return cur.fetchall()
+
+# safe function using parameterized queries
+def safe_query(con, username):
+    sql = "SELECT id, username FROM users WHERE username = ?"
+    cur = con.cursor()
+    cur.execute(sql, (username,))
+    return cur.fetchall()
+
+def test_vulnerable_query_leaks_with_payload():
+    con = setup_db()
+    rows = vulnerable_query(con, PAYLOAD)
+    # vulnerable function often returns something unexpected (may return rows)
+    # we don't assert exact behavior here — we show that the vulnerable path is different from safe path
+    assert rows != safe_query(con, PAYLOAD)  # demonstrates the difference
+
+def test_safe_query_does_not_leak_with_payload():
+    con = setup_db()
+    rows = safe_query(con, PAYLOAD)
+    # safe query treats payload as literal username — there is no user with that exact string
+    assert rows == []  # no rows returned for the payload
+```
+
+**Run:**
+
+```bash
+pip install pytest
+pytest -q
+```
+
+**Why this test is useful:** it verifies the parameterized path does **not** interpret the injection payload as SQL. The `vulnerable_query` is included as a quick demonstration of the difference you should be catching in CI.
+
+---
+
+## 6) Quick local / manual checks
+
+* **Smoke test:** curl your endpoint with `username=%27%20OR%20%271%27=%271` (URL-encoded) and observe behavior.
+* **Log review:** ensure no SQL or raw parameters are returned in client responses.
+* **Least-privilege test:** try to `DROP` or `SELECT` from system tables using the app DB role — should fail.
+
+---
+
+## 7) Small checklist to commit to repo
+
+* `README.md` section: *how to run tests* (`pytest -q`)
+* `ci/` pipeline step: run the `tests/test_sqli_param.py` (or similar) as part of CI before deploy.
+* `ops/` notes: where app DB credentials live (secrets manager), rotation policy, and who has admin rights.
+
+---
+
+## Final (TL;DR)
+
+* **Parametrize** everything. *Values ≠ code.*
+* **Whitelist** identifiers; never accept arbitrary table/column names.
+* **Least privilege** for runtime DB users.
+* **Automate tests** that assert classic payloads do not leak data.
+
+If you want, I’ll:
+
+* add a `Makefile` target (`make test`) that runs pytest and a couple of smoke `curl` checks, or
+* generate a one-click GitHub Actions CI snippet that runs the pytest above on push to `main`.
+
+Which would you prefer?
+
+```
+```

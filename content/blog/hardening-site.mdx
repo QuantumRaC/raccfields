@@ -1,0 +1,185 @@
+---
+title: "Small Steps to Hardening My Hobby Site"
+slug: "hardening-hobby-site"
+date: "2025-09-28"
+author: "Cynthia Yao"
+tags: ["Security", "Ops", "Practical"]
+description: "Practical hardening for a small site: short recon, a few high-impact fixes, and a tiny incident-response checklist you can actually follow."
+---
+
+### TL;DR
+
+If you run a small personal site or microservice, you don’t need an enterprise security program to make it significantly safer. Do a quick outside check (20 minutes), apply a handful of high-impact fixes (SSH keys, HTTPS, secrets handling, simple firewall), and keep a one-page “what to do if stuff breaks” checklist. These saved me headaches when I was shipping my portfolio.
+
+---
+
+I’m a junior undergrad and I learn best by breaking things in labs and then fixing them in my own projects. This post is the “how I did it” version — short, practical, and not scary. The ideas here come from my linux & network notes and from playing around on [TryHackMe](https://tryhackme.com/room/networkingsecureprotocols) and [pwn.college](https://pwn.college/intro-to-cybersecurity/web-security/); I used them to tighten my site without turning it into a full-on ops job.
+
+## Thanks, Vercel
+
+Admittedly, current hosting platforms (I'm using [Vercel](https://vercel.com/) for my site) take care of many security aspects. We get convenience and fewer chores.
+
+What Vercel already does (so we can skip it):
+
+- TLS termination and automatic certificate renewal (no Certbot configs to babysit).  
+- Immutable deployments and preview URLs for PRs (nice for testing).  
+- Environment variable storage (so you don’t have to bake secrets into the repo).  
+- Platform-level patching / host maintenance — you don’t run the VMs.
+
+**Bottom line:** you usually don’t need to run host-level scans or manage TLS by hand for a frontend hosted on Vercel.
+
+However, as developers, we still need to test and harden the web app and integrations. A checklist of what we still need to own:
+
+- **App vulnerabilities**: bugs in your code (SQLi, XSS, auth logic). These are not fixed by Vercel.  
+- **Secrets**: where you store DB credentials, API keys, OAuth secrets — use Vercel env vars or a secrets manager.  
+- **Dependencies**: vulnerable npm or pip packages live in your repo and build on Vercel — scan them.  
+- **External services**: my [FastAPI](https://fastapi.tiangolo.com/) runs on [Render](https://render.com/) and my DB/third-party APIs are outside Vercel — lock them down.  
+- **CI tests & smoke checks**: Vercel gives previews, but you still want tests in your repo to catch regressions.  
+- **Rate-limiting & abuse controls**: either in-app, via a CDN, or Cloudflare if you care about automated abuse.
+
+## Quick recon out of curiosity — the 20-minute attacker view
+
+Goal: find obvious exposures and stale things so you can fix the low-hanging fruit.
+
+- **Service scan (safe, from your machine):**
+    ```bash
+    nmap -sV yourdomain.com
+    ````
+
+Look for unexpected open ports (databases, admin panels). If it’s just Vercel frontend, you’ll mostly see standard web ports — that’s fine.
+
+* **TLS sanity check:** open the site in a browser and check the padlock. Quick CLI check:
+
+  ```bash
+  openssl s_client -connect yourdomain.com:443 -servername yourdomain.com
+  ```
+
+  Make sure certificates aren’t expired and there are no obvious warnings.
+
+* **Public visibility:** if you’re curious, search your domain on [Shodan](https://www.shodan.io/)/[Censys](https://censys.io/). Useful for a quick external view.
+
+**Why this helps:** most real-world mistakes are obvious — an exposed admin panel, an expired cert, or a database accidentally reachable from the public Internet.
+
+---
+
+## High-impact fixes (what I actually do first)
+
+I recommend doing these in this order — each is small and gives good coverage. 
+
+### 1) Secrets: keep them safe (5–15 minutes)
+
+* Put API keys, DB passwords, and tokens in your hosting platform’s env vars (Vercel/Render) or a secrets manager.
+* If you accidentally committed secrets earlier, rotate them. 
+    * ( I once leaked a key by accident and immediately started getting ~13k requests/day to that endpoint — rotate fast. )
+
+For instance, to scrub a leaked secret from history, use [`git filter-repo`](https://github.com/newren/git-filter-repo) or [BFG](https://rtyley.github.io/bfg-repo-cleaner/):
+
+```
+# example with BFG (quick)
+bfg --delete-files PATH_TO_FILE
+git push --force
+```
+
+**Why:** accidental commits are common. Moving secrets to env vars prevents easy leaks.
+
+### 2) Parameterize DB queries & validate inputs (30–60 minutes)
+
+* Never build SQL by concatenating user input. Use parameterized queries or an ORM.
+* Add a quick negative test (one test) that sends a classic payload like `"' OR '1'='1"` to staging and make sure there's no data leakage.
+
+Here is a minimal script (easy to run via `pip install pytest` and then `pytest-q`) for demonstration:
+
+```py
+# tests/test_sqli_negative.py
+import sqlite3
+
+def setup_db():
+    con = sqlite3.connect(":memory:")
+    cur = con.cursor()
+    cur.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)")
+    cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", ("admin", "s3cr3t"))
+    con.commit()
+    return con
+
+def safe_query(con, username):
+    cur = con.cursor()
+    cur.execute("SELECT id, username FROM users WHERE username = ?", (username,))
+    return cur.fetchall()
+
+def test_safe_query_blocks_classic_payload():
+    con = setup_db()
+    payload = "' OR '1'='1"
+    rows = safe_query(con, payload)
+    assert rows == []  # no row for that literal payload
+```
+
+**Why:** this prevents the class of bugs that actually cause data loss (SQLi) — it's code-level, not infra.
+
+### 3) Dependency checks (15–30 minutes)
+
+* Enable [Dependabot](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically) or another scanner for npm/pip.
+* Add an `npm audit` step to CI (or run it locally occasionally).
+* Also, note package/library versions when working across various libraries. Update or roll back versions if needed.
+
+**Why:** Vercel builds what you push. Vulnerable deps in repo = vulnerable app.
+
+### 4) Lock external services (15–45 minutes)
+
+* If you run a DB or backend outside Vercel (e.g., Render, Supabase, hosted DB), ensure it’s **not** publicly open. Use:
+
+  * provider network restrictions (allow only your backend host), or
+  * private networking / VPC, or
+  * restrict by IP where feasible.
+* Use DB users with minimal privileges (SELECT/INSERT/UPDATE as needed — no superuser).
+
+For my projects the real risk was my external backend/DB, not the hosted frontend. In my case, limiting request source in `FastAPI` in my backend filters out unauthorized input.
+
+### 5) Basic rate limits & CDN (optional, 15–30 minutes)
+
+* Add simple in-app rate-limiting to login/search endpoints or use your CDN/WAF for basic rules. Cloudflare free tier is often enough for hobby sites.
+
+**Why:** stops noisy brute-force or scraping without heavy architecture.
+
+---
+
+## Small monitoring & lightweight tests
+
+You don’t need SIEM — a couple of simple checks are enough:
+
+* **Smoke tests in CI:** curl homepage and login endpoints on deploy. Fail the build if they return 5xx.
+* **One negative security test:** keep the tiny pytest from the cheat sheet in `tests/` that asserts parameterized queries don’t leak with `"' OR '1'='1"`.
+* **Check logs weekly:** look for spikes in 500s or repeated auth failures. Consider a lightweight error tracker like [Sentry](https://sentry.io/) if you want alerts.
+
+These habits catch regressions early without adding overhead.
+
+---
+
+## Tiny incident-response checklist (one page)
+
+If something looks off, follow this order — short, repeatable, and calm.
+
+1. **Identify** — which endpoint/host is failing? Check logs and recent deploys. 
+    - Personal experience - developing an error-handling pipeline in your app early on can make this a lot easier for later.
+2. **Contain** — take the endpoint down or restrict access (maintenance page, block IPs).
+3. **Preserve evidence** — copy logs off the host; avoid deleting anything you might need for root cause.
+4. **Remediate** — rotate secrets used by the affected service; revert to a known-good deploy.
+5. **Recover** — bring service back and monitor closely.
+6. **Post-mortem (short)** — 3 bullets: timeline, root cause, and one concrete guardrail (e.g., “rotate leaked key; add CI check”).
+
+This short checklist can help keep the response focused and practical.
+
+---
+
+## What you can safely skip (if you use managed hosting)
+
+* **Host-level patching & Certbot configs:** platforms like Vercel and Render manage TLS and hosts. You don’t need to run Certbot on a VM for the frontend.
+* **Nmap the platform frontend continuously:** little value scanning a managed frontend; focus scans on services you control (DBs, VMs).
+* **Enterprise SIEM / complex WAF rules:** overkill for small personal sites — useful only if you handle sensitive data or see real traffic.
+
+Managed platforms remove many chores; it's more efficient to save your time for the app-level and external-service work that still matters.
+
+---
+
+## Final notes
+
+I kept my hardening small and repeatable because I’m juggling school and side projects - a 20-minute recon and a couple of 1-hour fixes prevented a handful of potential fail cases on my portfolio. It's also good practice security-wise and helps me understand better about the significance behind security principles learned in class. The best strategy is pragmatic: make the platform do the heavy lifting, then secure what you actually control (code, secrets, deps, external backends). 
