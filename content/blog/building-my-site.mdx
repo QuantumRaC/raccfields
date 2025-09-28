@@ -1,0 +1,70 @@
+---
+title: "Building My Site: From npm run dev to Secure Deployment"
+slug: "building-my-site"
+date: "2025-09-27"
+author: "Cynthia Yao"
+tags: ["Web Dev", "Security", "Infrastructure"]
+description: "How I built my portfolio with Next.js and Vercel, fixed DNS redirect loops, and secured it with TLS."
+---
+
+## Before the First Commit
+
+Building a personal website can feel intimidating at the start. Even though I had prior experience working as part of a team with React, Tailwind CSS, and MongoDB, creating a site completely from scratch on my own felt like a much bigger challenge.  
+
+I followed an Agile-inspired workflow. I began by researching for inspiration — I wanted to have a clear vision of what I was aiming for before committing to a stack. Two sites that stood out to me were [Cassie Evans](https://www.cassie.codes/) and [Tania Rascia](https://www.taniarascia.com/). Both gave me ideas about design and content structure. After outlining the sections I wanted and the functionality I needed, I came up with three guiding requirements: fast deployment, security, and scalability.  
+- **Fast deployment** so I could update content frequently without headaches.  
+- **Security** to protect any projects or experiments I might embed.  
+- **Scalability** so the site could grow with me, rather than having to be rebuilt later.  
+
+## Tech Stack Selection
+
+Selecting a tech stack is one of the most important steps in building any project — once you commit, switching later can be costly. I wanted to be clear about my priorities and choose tools I was confident I could build on throughout the project.  
+
+I selected **Next.js** as my framework. Having worked with React.js, I was already comfortable with the component-based approach, but I wanted something more production-ready. Server-side rendering, built-in routing, and strong SEO support made Next.js ideal for a portfolio I wanted to share widely. It also let me add lightweight backend logic without a separate server. Its seamless integration with Vercel meant I could deploy quickly and reliably. Compared to Angular, which is heavier and more opinionated, or Vue, which has a smaller ecosystem in the US job market, React/Next.js offered me the best combination of maturity, flexibility, and community support.  
+
+I chose **Tailwind CSS — specifically Shadcn** — for styling. In my previous project, I used DaisyUI, but this time I wanted more flexibility and long-term maintainability. Shadcn is built directly on top of Tailwind, which meant I could fully customize styling while still working efficiently with prebuilt, well-designed components. Unlike Bootstrap or Material UI, Shadcn doesn’t force a specific design language. For a personal site, that freedom mattered: I wanted it to reflect my own style rather than look like every other Bootstrap site.  
+
+For hosting, I went with **Vercel**, which was a natural choice given its close integration with Next.js. Vercel offers automated GitHub builds, fast global deployments, and handles HTTPS certificates, caching, and scaling automatically. Compared to managing AWS or a VPS myself, Vercel drastically cut down on configuration overhead, letting me focus on building features rather than infrastructure.  
+
+Altogether, this stack gave me a foundation that balanced efficiency, flexibility, and reliability. By choosing tools that work well together, I could spend more time refining user experience and less time wrestling with configuration issues.  
+
+## Start Building
+
+I started with the home (landing) page and shipped it immediately through Vercel to validate that deployment worked. From there, I built in small increments. I first created reusable components like the navbar, theme toggler, and footer so I could import them anywhere for consistency. I also kept paths in a TypeScript file instead of hardcoding them in every page, which improved maintainability and future scalability. By this point, I had the skeleton of my site, and I could branch out and refine each page.  
+
+One of the first features I wanted to showcase was my software development projects. At the time, I had a Python project — **T3xtAnlys**, a lightweight text analysis tool that examines writing style, word choice, grammatical structures, and sentiment using NLP techniques, then outputs feedback using Google Gemini. I wanted to integrate it into my site so it wasn’t just a local project but something people could try online.  
+
+Here I hit a limitation: Vercel doesn’t run Python natively. Rewriting everything in JavaScript/TypeScript wasn’t practical. The best approach was to wrap my analyzer in a backend microservice, expose REST endpoints, and call them from my Next.js frontend via fetch.  
+
+I chose **FastAPI** for the microservice. It’s lightweight, async-friendly, and modern — a better fit than Flask (simpler, but less performant for async tasks) or Django (powerful, but overkill for a small service). For hosting, I used **Render**, which supports Python apps directly with simple git deployment and a Procfile. Compared to Heroku, Render had better pricing, faster cold starts, and a more modern ecosystem. AWS Lambda was another option, but setting up a serverless pipeline felt unnecessarily heavy for a side project.  
+
+After wrapping my analyzer in FastAPI, I spent several hours debugging it on Render and wiring up the frontend fetch functions.  
+
+## When Things Break
+
+Working with a page that sends requests through multiple services can be tricky. In my case, the flow was:  
+
+1. The Next.js frontend sends a fetch request to my Render server.  
+2. The Render server calls my Python analyzer.  
+3. The analyzer calculates text statistics and prompts Gemini for feedback.  
+4. The response is returned to the frontend and displayed.  
+
+Each step introduced potential failure points — from network latency to API errors — which meant I needed strong error handling.  
+
+At one point, my service kept failing to generate responses. Possible causes included backend connection issues, bad requests, or my Render server running out of memory. To debug faster, I built a **structured error handling pipeline**. On the frontend, `handleSubmit` now distinguishes between network failures, invalid JSON, and backend error codes, displaying user-friendly messages while logging details for debugging. On the backend, my FastAPI analyzer always returns JSON objects with clear errors (e.g., `"Unsupported language detected"` or `"AI generation failed"`). This approach gave me observability — errors didn’t vanish silently, they were propagated with context to where they were most useful.  
+
+Eventually, I discovered the problem was downstream: I had exceeded my Gemini API quota. At first this was confusing, since I had only sent 30–40 requests a day while testing. The real cause was more serious: during deployment, I had accidentally committed my API key to GitHub. Although I quickly moved it into a `.env` file, traffic spiked to 13k requests per day before I revoked the key. I had to rotate credentials and reconfigure my API usage.  
+
+This incident reinforced the importance of **Secret Management** — keys should never be pushed to public repos. It also showed me how vulnerable services are to **Denial-of-Service risks**. To mitigate abuse, I added **Rate Limiting** with SlowAPI (30 requests per minute, 50 per day per IP). This protected both my backend and downstream services like Gemini.  
+
+## Publishing to the World
+
+Getting my analyzer running online was a big milestone. After polishing the backend integration, I refined other pages and prepared to launch. I registered my domain with GoDaddy and worked through DNS configuration. This was more confusing than I expected — even though I understood the concepts, juggling settings across platforms was tricky.  
+
+At one point, my site refused to load with a “too many redirects” error. After some investigation, I realized my site metadata pointed to `https://raccfields.dev`, while in Vercel I had set `https://www.raccfields.dev` as the primary domain. This mismatch caused a circular redirect loop. Fixing the configuration resolved the issue and taught me the importance of keeping environment settings consistent and documented. Small mismatches across systems can create major deployment failures; maintaining a single source of truth for configurations is essential.  
+
+## Looking Back
+
+This experience of building my site from scratch was incredibly valuable. Not only do I now have a place on the internet to call my own, I also learned lessons through trial and error that will guide me in future projects. I gained a better sense of how to evaluate a tech stack, integrate across frameworks and platforms, and secure production deployments.  
+
+What began as “just a portfolio” quickly became a training ground for debugging, security, and deployment. Every misstep taught me something new, and every fix made the system more resilient. While the site is live today, I see it as a beginning rather than an end. I plan to keep refining it, writing blogs to share what I learn, and experimenting with new technologies. Just as this project grew step by step, so will my skills as I continue building, breaking, and improving.  

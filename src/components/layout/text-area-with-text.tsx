@@ -27,10 +27,11 @@ const TextareaWithText = ({
 }: TextareaWithTextProps) => {
     return (
         <div className="w-full gap-3">
-            <Label htmlFor={id}>{label}</Label>
+            <Label htmlFor={id} className="text-md font-mono font-bold ml-2 mb-2 text-foreground">{label}</Label>
             <Textarea
                 id={id}
                 placeholder={placeholder}
+                className="font-mono text-xs"
                 value={value}
                 onChange={(e) => {
                     console.log("Event target value:", e.target.value)
@@ -38,7 +39,7 @@ const TextareaWithText = ({
                 }}
             />
             {helperText && (
-                <p className="text-muted-foreground text-sm">{helperText}</p>
+                <p className="text-muted-foreground text-sm mt-2 mb-4">{helperText}</p>
             )}
             <Button
                 id={buttonId}

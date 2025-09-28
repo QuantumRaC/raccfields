@@ -20,7 +20,7 @@ const Title = () => {
         T3xtAnlys
       </h1>
 
-      <p className="text-lg md:text-base max-w-2xl font-mono font-semibold text-muted-foreground whitespace-pre-line">
+      <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line">
         T3xtAnlys helps writers, editors, and researchers quickly understand the tone, style, and structure of any text. Powered by spaCy and AI, it identifies key linguistic patterns, sentiment, and readability metrics, turning complex text into actionable insights — making writing analysis faster, easier, and more effective.
         </p>
 
@@ -47,7 +47,7 @@ const AnalysisDisplay = ({ analysisResult, isLoading, error }: AnalysisDisplayPr
 
   return (
     <div className="mt-6">
-      <h2 className="font-bold mb-2">Analysis:</h2>
+      <h2 className="text-md font-mono font-bold ml-2 mb-2 text-foreground">Analysis:</h2>
       <div className="prose max-w-none dark:prose-invert font-mono text-xs font-thin">
         <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
           {content}
@@ -152,14 +152,15 @@ export default function TextAnlys() {
           />
         </div>
         <div className="text-mono mt-8 mb-16">
-          <h2><u>What to know about this tool</u></h2>
+          <p className="font-semithin text-sm">While you wait - </p>
+          <h2 className="mb-2"><u>What to know about this tool</u></h2>
           <p className="font-thin text-sm">
             This is a <strong>beta release</strong> and <strong>a work in progress</strong>.<br /><br />
             T3xtAnlys (name still subject to change) is an experimental lightweight text analysis tool that combines traditional NLP methods (spaCy, statistical metrics, language detection) with generative AI (Google Gemini) to provide insights into writing style, word choice, grammar structures, and sentiment.<br /><br />
             The project’s goal is to <strong>describe writing styles in a more statistical and quantitative way</strong>, showing how technology can bridge hard data with more sentimental and qualitative aspects of language such as tone, emotion, and style. I originally started this project while reflecting on my own writing, curious about what NLP data of different styles might reveal. Generative AI was introduced almost as a <em>writing instructor</em> interpreting the raw statistics into human-friendly feedback. I chose to implement it for both English and Simplified Chinese because these are the two languages I write in, and as a bilingual person both are equally significant to me.
           </p>
           <br />
-          <h2><u>Current limitations</u></h2>
+          <h2 className="mb-2"><u>Current limitations</u></h2>
           <p className="font-thin text-sm">
             - Feedback limited to 250 words/characters temporarily due to Google Gemini Limitations.<br />
             - Feedback waiting time can vary and can also be unstable due to limited backend requests and memory use, since this tool is still in beta.<br />
@@ -168,7 +169,7 @@ export default function TextAnlys() {
             This is not a production-ready system, but a demonstration of how <strong>classical NLP</strong> and <strong>modern LLMs</strong> can work together in a cohesive workflow. Feedback and contributions are welcome. The project will continue to evolve as new techniques are explored.
           </p>
           <br />
-          <h2><u>Technical Specifications</u></h2>
+          <h2 className="mb-2"><u>Technical Specifications</u></h2>
           <p className="font-thin text-sm">
             This tool is available as a web service connected to the <Link href={paths.about} className="hover:underline">raccfields site</Link>,
             providing text analysis capabilities through API requests.
@@ -191,7 +192,7 @@ export default function TextAnlys() {
             - For technical specifications of this site see <Link href={paths.aboutSite} className="hover:underline">About This Site</Link>.<br />
           </ul>
           <br /><p className="font-thin text-sm">For full source code and implementation details, see  
-            <Link href="https://github.com/QuantumRaC/T3xtAnlys" className="hover:underline"> GitHub repository.</Link></p>
+            <Link href="https://github.com/QuantumRaC/T3xtAnlys" className="hover:underline"> <u>GitHub repository</u>.</Link></p>
         </div>
         
       </div>

@@ -15,7 +15,7 @@ const Title = () => {
         Dev
       </h1>
 
-      <p className="text-lg md:text-base max-w-2xl font-mono font-semibold text-muted-foreground whitespace-pre-line">
+      <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line">
         This is my dev page.
       </p>
 

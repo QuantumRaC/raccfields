@@ -57,7 +57,7 @@ const PageHero = () => {
         />
       </h1>
 
-      <p className="text-lg md:text-base max-w-2xl font-mono font-semibold text-muted-foreground whitespace-pre-line">
+      <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line">
         <Link href={paths.security} className="hover:underline">
           Cybersecurity enthusiast
         </Link>
@@ -65,12 +65,17 @@ const PageHero = () => {
         <Link href={paths.dev} className="hover:underline">
           full-stack developer and AI/ML engineer.
         </Link>
-        {`
+        {/* {`
   Junior Computer Science major at the University of Florida.  
   Passionate about applying AI, NLP, and software engineering skills to real-world problems.  
-  Explore my projects, security writeups, and personal experiments — welcome to Raccfields.`}
+  Explore my projects, security writeups, and personal experiments — welcome to Raccfields.`} */}
+  {`\n\nI explore secure systems, web applications, and graphics engines, 
+  applying both research and hands-on projects to real-world problems.`}
       </p>
-
+      <br />
+      <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line"> 
+         <Link href={paths.textanlys} className="hover:underline"><u>{`Try out my newest project.`}</u></Link>
+        </p>
 
     </section>
   )
