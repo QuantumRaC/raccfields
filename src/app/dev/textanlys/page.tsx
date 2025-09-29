@@ -183,7 +183,7 @@ export default function TextAnlys() {
           <h2 className="mb-2"><u>Technical at a glance</u></h2>
           <ul className="list-disc ml-6 space-y-1 font-thin text-sm">
             <li><strong>Language Detection:</strong> langdetect (English + Simplified Chinese, experimental)</li>
-            <li><strong>NLP:</strong> spaCy 3.8.7 (en_core_web_md, zh_core_web_sm), TextBlob for sentiment</li>
+            <li><strong>NLP:</strong> spaCy 3.8.7 (en_core_web_sm, zh_core_web_sm), TextBlob for sentiment</li>
             <li><strong>Features:</strong> sentence & token lengths, clause density, POS & dependency distributions, verb tense, lemma motifs, morphology samples</li>
             <li><strong>Generative AI:</strong> Google Gemini 2.5 API for style feedback</li>
             <li><strong>Backend:</strong> FastAPI microservice (Python) hosted on Render</li>
