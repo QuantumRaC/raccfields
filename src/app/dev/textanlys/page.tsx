@@ -6,7 +6,6 @@ import TopNavigationMenu from "@/components/layout/top-navigation-menu"
 import Footer from "@/components/layout/footer-box"
 import ModeToggle from "@/components/layout/theme-toggle"
 import TextareaWithText from "@/components/layout/text-area-with-text"
-import { Loader2 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkBreaks from "remark-breaks"
 import remarkGfm from "remark-gfm"
@@ -23,10 +22,9 @@ const Title = () => {
       <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line">
         WriteLike helps writers, editors, and researchers quickly understand the tone, style, and structure of any text. Powered by spaCy and AI, it identifies key linguistic patterns, sentiment, and readability metrics, turning complex text into actionable insights — making writing analysis faster, easier, and more effective.
       </p>
-
     </section>
   )
-};
+}
 
 interface AnalysisDisplayProps {
   analysisResult: string | null
@@ -35,14 +33,32 @@ interface AnalysisDisplayProps {
 }
 
 const AnalysisDisplay = ({ analysisResult, isLoading, error }: AnalysisDisplayProps) => {
-  let content: string = "Awaiting input text."
+  let content: string
 
   if (error) {
     content = `**Error:** ${error}`
   } else if (isLoading) {
-    content = "_Waiting for analysis result.. Please don't submit twice._"
+    content = "_Waiting for analysis result.. _"
   } else if (analysisResult) {
     content = analysisResult
+  } else {
+    // Default sample output
+    content = `
+1. **Overall Style & Tone:**  
+The frequent lemmas like "generalize," "war," "true," and "death" suggest a serious, reflective, analytical, or even philosophical tone. It leans formal/academic rather than conversational.  
+
+2. **Writing Techniques & Effects:**  
+
+**Pacing:** High oscillation ratios for both sentence and token length suggest varied pacing. Concise statements mix with longer, complex sentences to create rhythm and emphasis.  
+
+**Clarity:** With ~1.75 clauses per sentence, the writing stays digestible while retaining nuance.  
+
+**Guidance:** To emulate this style:  
+- Vary sentence lengths for dynamic pacing.  
+- Balance concise and complex vocabulary.  
+- Explore abstract themes (truth, conflict, mortality).  
+- Maintain a serious and analytical tone.  
+    `
   }
 
   return (
@@ -57,22 +73,19 @@ const AnalysisDisplay = ({ analysisResult, isLoading, error }: AnalysisDisplayPr
   )
 }
 
-
 export default function TextAnlys() {
-  const [inp, setInp] = useState("")
+  const defaultInput = `To generalize about war is like generalizing about peace. Almost everything is true. Almost nothing is true. At its core, perhaps, war is just another name for death, and yet any soldier will tell you, if he tells the truth, that proximity to death brings with it a corresponding proximity to life. After a firefight, there is always the immense pleasure of aliveness. The trees are alive. The grass, the soil—everything. All around you things are purely living, and you among them, and the aliveness makes you tremble. --The Things They Carried, by Tim O'Brien`
+
+  const [inp, setInp] = useState(defaultInput)
   const [analysisResult, setAnalysisResult] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
   const handleSubmit = async () => {
-    console.log("Submit button clicked.")
-    console.log("Submitted text:", inp)
-
     setIsLoading(true)
-    setError("") // clear previous error
+    setError("")
 
     try {
-      console.log("[DEBUG] Sending request to backend...")
       const res = await fetch(paths.textanalysis, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,43 +93,28 @@ export default function TextAnlys() {
       })
 
       if (!res.ok) {
-        console.error(`[ERROR] Server responded with status ${res.status}`)
         setError(`Server error: ${res.status}`)
         throw new Error(`Server error: ${res.status}`)
       }
 
-      console.log("[DEBUG] Parsing JSON response...")
-      let data: { language?: string; analysis?: string; error?: string }
-      try {
-        data = (await res.json()) as { language?: string; analysis?: string; error?: string }
-      } catch (jsonErr) {
-        console.error("[FAILURE] Invalid JSON received from backend", jsonErr)
-        setError("Invalid response from server.")
-        throw jsonErr
-      }
+      const data = (await res.json()) as { analysis?: string; error?: string }
 
       if (data.error) {
         setError(data.error)
         return
       }
 
-      console.log("[SUCCESS] Backend response received:", data)
       setAnalysisResult(data.analysis || "")
-
     } catch (err: unknown) {
       if (err instanceof TypeError && err.message === "Failed to fetch") {
-        console.error("[FAILURE] Network error: Could not reach backend")
         setError("Network error: Please check your connection or try again later.")
       } else if (err instanceof Error) {
-        console.error("[FAILURE] Error fetching analysis:", err)
         if (!error) setError(err.message || "An unknown error occurred.")
       } else {
-        console.error("[FAILURE] Unknown error:", err)
         setError("An unknown error occurred.")
       }
     } finally {
       setIsLoading(false)
-      console.log("[MILESTONE] Request cycle complete.")
     }
   }
 
@@ -137,7 +135,7 @@ export default function TextAnlys() {
           id="text-analyze"
           label="Subject Literature"
           placeholder="Insert text to be analyzed."
-          helperText="Enter text in English. (Note: Simplified Chinese is supported as well but feedback is very unstable due to server memory limitations.)"
+          helperText="Enter text in English. (Simplified Chinese is supported experimentally.)"
           value={inp}
           buttonId="analyze-btn"
           buttonText="Analyze"
@@ -145,12 +143,10 @@ export default function TextAnlys() {
           onButtonClick={handleSubmit}
         />
         <div className="flex flex-col min-h-[20vh] mb-8">
-          <AnalysisDisplay
-            analysisResult={analysisResult}
-            isLoading={isLoading}
-            error={error}
-          />
+          <AnalysisDisplay analysisResult={analysisResult} isLoading={isLoading} error={error} />
         </div>
+
+        {/* ===== Your original explanatory content restored ===== */}
         <div className="text-mono mt-8 mb-16">
           <p className="font-semithin text-sm">While you wait - </p>
 
@@ -212,7 +208,6 @@ export default function TextAnlys() {
             </Link>
           </div>
         </div>
-
       </div>
       <Footer />
     </div>

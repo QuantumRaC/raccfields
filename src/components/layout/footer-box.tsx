@@ -19,7 +19,7 @@ const Footer = () => {
 
         {/* Copyright / Name */}
         <p className="text-sm font-mono text-muted-foreground">
-          © {new Date().getFullYear()} raccfields — All rights reserved
+          © {new Date().getFullYear()} Cynthia Yao — All rights reserved
         </p>
       </div>
     </footer>
