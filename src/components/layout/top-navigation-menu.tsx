@@ -36,21 +36,21 @@ const secComponents: { title: string; href: string; description: string }[] = [
   },
   {
     title: "Writeups",
-    href: "/docs/primitives/hover-card",
+    href: "/blog/sql-injection",
     description:
       "Writeups for CTFs and hands-on exercises",
   },
-  {
-    title: "Projects",
-    href: "/docs/primitives/progress",
-    description:
-      "Security related builds",
-  },
-  {
-    title: "Resources",
-    href: "/docs/primitives/scroll-area",
-    description: "Curated links & cheat sheets",
-  },
+  // {
+  //   title: "Projects",
+  //   href: "/docs/primitives/progress",
+  //   description:
+  //     "Security related builds",
+  // },
+  // {
+  //   title: "Resources",
+  //   href: "/docs/primitives/scroll-area",
+  //   description: "Curated links & cheat sheets",
+  // },
 ]
 
 const TopNavigationMenu = () => {
