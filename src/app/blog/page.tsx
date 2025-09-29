@@ -90,7 +90,7 @@ export default function Blog() {
                 {post.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-0.5 text-xs rounded-full bg-muted text-foreground"
+                    className="px-2 py-0.5 text-xs rounded-full bg-popover text-foreground"
                   >
                     {tag}
                   </span>
