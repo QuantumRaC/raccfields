@@ -17,12 +17,12 @@ const Title = () => {
   return (
     <section className="flex flex-col items-end justify-center text-center min-h-[70vh] px-6">
       <h1 className="text-5xl md:text-7xl font-mono font-thin mb-12 text-foreground">
-        T3xtAnlys
+        WriteLike
       </h1>
 
       <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line">
-        T3xtAnlys helps writers, editors, and researchers quickly understand the tone, style, and structure of any text. Powered by spaCy and AI, it identifies key linguistic patterns, sentiment, and readability metrics, turning complex text into actionable insights — making writing analysis faster, easier, and more effective.
-        </p>
+        WriteLike helps writers, editors, and researchers quickly understand the tone, style, and structure of any text. Powered by spaCy and AI, it identifies key linguistic patterns, sentiment, and readability metrics, turning complex text into actionable insights — making writing analysis faster, easier, and more effective.
+      </p>
 
     </section>
   )
@@ -146,55 +146,73 @@ export default function TextAnlys() {
         />
         <div className="flex flex-col min-h-[20vh] mb-8">
           <AnalysisDisplay
-          analysisResult={analysisResult}
+            analysisResult={analysisResult}
             isLoading={isLoading}
             error={error}
           />
         </div>
         <div className="text-mono mt-8 mb-16">
           <p className="font-semithin text-sm">While you wait - </p>
-          <h2 className="mb-2"><u>What to know about this tool</u></h2>
+
+          <h2 className="mb-2"><u>What WriteLike does</u></h2>
           <p className="font-thin text-sm">
-            This is a <strong>beta release</strong> and <strong>a work in progress</strong>.<br /><br />
-            T3xtAnlys (name still subject to change) is an experimental lightweight text analysis tool that combines traditional NLP methods (spaCy, statistical metrics, language detection) with generative AI (Google Gemini) to provide insights into writing style, word choice, grammar structures, and sentiment.<br /><br />
-            The project’s goal is to <strong>describe writing styles in a more statistical and quantitative way</strong>, showing how technology can bridge hard data with more sentimental and qualitative aspects of language such as tone, emotion, and style. I originally started this project while reflecting on my own writing, curious about what NLP data of different styles might reveal. Generative AI was introduced almost as a <em>writing instructor</em> interpreting the raw statistics into human-friendly feedback. I chose to implement it for both English and Simplified Chinese because these are the two languages I write in, and as a bilingual person both are equally significant to me.
+            WriteLike looks at the “shape” of your writing — things like sentence length, rhythm, tone,
+            and word choice — and turns those patterns into clear, human-friendly feedback. It’s not about
+            saying if writing is “good” or “bad,” but showing <em>how</em> it works: punchy and direct,
+            reflective and flowing, descriptive, or action-driven.
           </p>
+
           <br />
-          <h2 className="mb-2"><u>Current limitations</u></h2>
+
+          <h2 className="mb-2"><u>What it’s for</u></h2>
           <p className="font-thin text-sm">
-            - Feedback limited to 250 words/characters temporarily due to Google Gemini Limitations.<br />
-            - Feedback waiting time can vary and can also be unstable due to limited backend requests and memory use, since this tool is still in beta.<br />
-            - Requests per IP is limited to 30/minute and 500/day.
-            - Processing large text blocks can be memory-intensive on limited hosting environments.<br /><br />
-            This is not a production-ready system, but a demonstration of how <strong>classical NLP</strong> and <strong>modern LLMs</strong> can work together in a cohesive workflow. Feedback and contributions are welcome. The project will continue to evolve as new techniques are explored.
+            The goal is to help you ask: <strong>“Why does this passage feel the way it does?”</strong>
+            WriteLike highlights the components of style so you can borrow rhythms, structures, and tones
+            into your own work — while keeping your own voice. It’s a tool for exploration, learning,
+            and writing more intentionally.
           </p>
+
           <br />
-          <h2 className="mb-2"><u>Technical Specifications</u></h2>
+
+          <h2 className="mb-2"><u>Why it works</u></h2>
           <p className="font-thin text-sm">
-            This tool is available as a web service connected to the <Link href={paths.about} className="hover:underline">raccfields site</Link>,
-            providing text analysis capabilities through API requests.
+            Behind the scenes, WriteLike blends <strong>linguistic analysis</strong> (spaCy, TextBlob, statistical
+            features) with <strong>AI interpretation</strong> (Google Gemini). Think of it as a translator
+            between data and storytelling: the numbers describe what’s happening, and the AI explains
+            what it means for your style.
           </p>
+
+          <br />
+
+          <h2 className="mb-2"><u>Technical at a glance</u></h2>
           <ul className="list-disc ml-6 space-y-1 font-thin text-sm">
-            - <strong>Language Detection:</strong> langdetect (supports English and Simplified Chinese)<br />
-            - <strong>NLP Libraries:</strong> spaCy (3.8.7) for parsing (models: en_core_web_md-3.8.0, zh_core_web_sm-3.8.0), TextBlob for sentiment Analysis<br />
-            - <strong>Statistical Features Analyzed:</strong><br />
-            &nbsp;&nbsp;- Sentence lengths: average, standard deviation, range, oscillation<br />
-            &nbsp;&nbsp;- Token lengths (excluding punctuation): average, standard deviation, range, oscillation<br />
-            &nbsp;&nbsp;- Clauses per sentence: count and variance<br />
-            &nbsp;&nbsp;- Part-of-speech distribution: frequency of major POS categories<br />
-            &nbsp;&nbsp;- Dependency relations: frequency of syntactic dependencies<br />
-            &nbsp;&nbsp;- Verb tense usage: counts of verbs by tense<br />
-            &nbsp;&nbsp;- Lemma frequency: most common words and motifs<br />
-            &nbsp;&nbsp;- Morphological features: sample token morphs for linguistic insights<br />
-            - <strong>Generative AI:</strong> Google Gemini (2.5) API for human-readable style analysis<br />
-            - <strong>Backend:</strong> FastAPI (Python) serving the text analysis API<br />
-            - <strong>Deployment:</strong> Hosted on Render, with CORS-enabled API and client-side request handling<br />
-            - For technical specifications of this site see <Link href={paths.aboutSite} className="hover:underline">About This Site</Link>.<br />
+            <li><strong>Language Detection:</strong> langdetect (English + Simplified Chinese, experimental)</li>
+            <li><strong>NLP:</strong> spaCy 3.8.7 (en_core_web_md, zh_core_web_sm), TextBlob for sentiment</li>
+            <li><strong>Features:</strong> sentence & token lengths, clause density, POS & dependency distributions, verb tense, lemma motifs, morphology samples</li>
+            <li><strong>Generative AI:</strong> Google Gemini 2.5 API for style feedback</li>
+            <li><strong>Backend:</strong> FastAPI microservice (Python) hosted on Render</li>
+            <li><strong>Frontend:</strong> Next.js app fetching results via API</li>
           </ul>
-          <br /><p className="font-thin text-sm">For full source code and implementation details, see  
-            <Link href="https://github.com/QuantumRaC/T3xtAnlys" className="hover:underline"> <u>GitHub repository</u>.</Link></p>
+
+          <br />
+
+          <h2 className="mb-2"><u>Learn more</u></h2>
+          <div className="grid gap-4 sm:grid-cols-2 mt-4">
+            <Link href="/blog/building-writelike" className="block p-4 border rounded-lg hover:bg-accent">
+              <h3 className="font-semibold">The Story of WriteLike</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                My motivation, experiments, and lessons learned while building this tool.
+              </p>
+            </Link>
+            <Link href="/blog/why-writelike-works" className="block p-4 border rounded-lg hover:bg-accent">
+              <h3 className="font-semibold">WriteLike: How it works, Why it works</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                A technical deep dive into the NLP pipeline, feature engineering, and ethical safeguards.
+              </p>
+            </Link>
+          </div>
         </div>
-        
+
       </div>
       <Footer />
     </div>

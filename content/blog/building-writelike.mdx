@@ -1,0 +1,101 @@
+---
+title: "The Story of WriteLike"
+slug: "building-writelike"
+date: "2025-07-29"
+author: "Cynthia Yao"
+tags: ["NLP", "AI", "Thought Process", "Deployment", "Reflection"]
+description: "My journey building WriteLike: from spaCy experiments to a deployed web service. My motivation, design decisions, GenAI integration, deployment stack, and the current limitations."
+---
+
+### TL;DR
+
+How I went from a small spaCy playground to launching WriteLike — a live writing-assistant web app. I share my motivation, the experiments that shaped the tool, the GenAI integration, the deployment stack I chose, and the limitations I discovered (and how I plan to solve them).
+
+## Initial Motivation
+
+WriteLike (or, at that time, T3xtAnlys) started off as a playground project with [spaCy](https://spacy.io/). I have worked with sentiment analysis projects before, but I wanted to explore more about the key linguistic attributes that spaCy allows me to extract from texts. 
+
+I always enjoyed retrieving, reading and analyzing panels of data, and my interest in linguistics also motivated me to take several linguistics classes at school. After I finished *Intro to Linguistics* and *Language and Computers*, I gained a deeper understanding in linguistics, and the way how statistics can be used to describe language inspired me. Having more insight into how linguistic attributes like Part-of-Speech, clauses, lexicons, morphology, and syntax are significant, I then moved on from theoretical linguistics to applying that knowledge with spaCy.
+
+I played around with the linguistic attributes that spaCy allows me to extract. The project began here - simple Python code using spaCy to parse a text and then calculating the average and variance of spans (sentence lengths), POS, dependency, morphology, tokens, and lexical repetition. I wanted the statistical analysis to be well-rounded and descriptive of the text, and I chose these metrics because they each reflect significant aspects:
+
+- The average **Span** and its variability reflect continuity and rhythm.
+    - Clause count represents syntactic complexity and density as well.
+    - Use of subordination (e.g., conjunctions, relative clauses) suggests complex or flowing spans.
+- **POS** (Part-of-Speech) can reflect the tone based on the frequency of each POS.
+    - i.e. Noun-heavy text - descriptive, objective tone; verb-heavy text - dynamic, action-driven tone; high adverb/adjective use: vivid, emotional tone.
+- Frequent nested **Syntactic Dependencies** suggest syntactic complexity.
+    - Recurring dependency patterns hint at stylistic habits.
+- **Morphology**, which differentiates tense, mood, person, and number, convey formality, narrative perspective, and stylistic consistency.
+    - Morphological diversity can signal grammatical richness and flexibility.
+- **Token Shape** describes the use of capitalization, punctuation, or symbols, which can indicate an expressive, technical, or playful tone.
+    - Token length also reflects lexical complexity and pacing.
+- **Lexical Repetition (motifs)** capture repetitive words, phrases, or grammatical structures that can create emphasis, rhythm, and cohesion.
+
+I then tested this analyzer program with various texts written in different languages. I am an English-Chinese bilingual and I also know Japanese, and I was curious to see how different authors, genres, and tones can be reflected in the stats for different languages. I tried various texts from different novels, games, lyrics, poetry, plays, etc. and it was really interesting to observe the vast differences in the stats. 
+
+I did a small experiment where I chose a passage from a book I really liked, *The Things They Carried* by Tim O'Brien. I plugged it into my code, wrote a short paragraph myself trying to mimic the style of the passage, plugged my paragraph and refined the linguistic characteristics based on the differences between Tim O'Brien's stats and mine. It was really inspiring to see that my writing did move closer to the style.
+
+And so I thought to myself - now I have a statistical summary of the styles of these text. Can I have something analyze that compact linguistic data for me and highlight how I can write like this?
+
+---
+
+## GenAI Incoming
+
+Therefore I incorporated GenAI. What would be better at crunching all the data and generating an analysis in human-readable format? 
+
+I chose Google Gemini because it was effective at turning compact, structured input into clear, concise prose and it had a usable free/dev tier for prototyping and beta users. That let me iterate quickly without a high API key cost while the product was still experimental. It has good multilingual support as well, and did produce great outputs once I connected the API and prompted with my summary along with a prompt describing the analysis I want. After a series of prompt engineering, I landed with the following real example of an early-dev-stage response (shortened):
+
+```
+### Analysis of Style, Tone, Pacing, and Presentation
+
+Imagine a writer who moves effortlessly between profound contemplation and direct observation, crafting prose. That's the essence of the style indicated by these linguistic clues.
+
+**1. 0verall style & Tone:** This text appears to lean towards a **reflective**, thoughtful, and perhaps slightly introspective or philosophical style, delivered with an approachable, almost conversational tone.” It's not strictly formal, nor is it overly informal; rather, it strikes a balance that invites the read into a shared mental space.
+
+***Reflective & Introspective:** The high frequency of lemmas like "want," "almost," and "true" suggests a focus on internal states, aspirations, proximity to ideas, and the nature of reality or belief. This isn't a purely factual report; it delves into motivations, nuances, and potentially subjective truths.
+
+**2. Writing Technigues & Effects:**
+...
+```
+
+I iterated between prompts for a most ideal response, and I also added sentiment and emotion analysis with TextBlob to attempt and capture more data than only the linguistic features. At this point, I have built a text analyzer that extracts key metrics, generates a full analysis of the style and provides instructions as to how to write in this style.
+
+---
+
+## Putting it on the Web
+
+I enjoyed using WriteLike, but wouldn't a tool be greater if it's not only a text analyzer for myself but a writing assistant open to use for everyone? 
+
+That is when I decided to mount WriteLike onto my site. I saw how effective it can be, and it would be better if more people can find it useful. 
+
+My site is build based on a Next.js framework hosted on [Vercel](https://www.vercel.com). Unfortunately, Vercel doesn't support a native Python runtime. 
+
+My best approach would be to wrap my analyzer in a backend microservice, expose REST endpoints, and call them from my Next.js frontend via fetch.
+
+This separation made the whole thing simpler to develop and safer to run. I picked FastAPI because it felt like the right balance for this project: modern, async-first, and light enough to iterate quickly. For hosting I went with Render — the git-based deploys and friendly pricing beat other alternatives for my use case. I considered AWS Lambda but decided the serverless setup added complexity I didn’t need for a small, stateful prototype.
+
+Once the microservice was live, I spent a handful of hours debugging the integration (CORS, request shapes, error handling) and wiring the frontend’s fetch calls. The runtime flow ended up clean and reliable:
+
+1. Next.js sends the text payload to my Render-hosted API.
+2. FastAPI runs the spaCy/statistics pipeline and composes a compact JSON summary.
+3. The backend calls Gemini with that summary and gets back the human-readable feedback.
+4. FastAPI returns metrics + Gemini’s text to the frontend, which renders the advice and example rewrites.
+
+Because I was calling a downstream model, I added simple rate-limiting with SlowAPI (30 requests/min, 50/day per IP) to protect both my service and the Gemini quota. The limits are deliberately conservative for beta users — enough to stop accidental DoS and keep costs predictable.
+
+It meant a lot to me to see the service live and have my friends from the other side of the globe try it on their phones. Learning-wise, this piece of the project also highlights the importance of picking pragmatic tools that match the scale of the problem, designing a clean API boundary between front end and analyzer logic, and iteratively debugging and harden the integration. 
+
+## Current Limitations and Future Plans
+
+At this point, WriteLike has become way more than only a local project born out of curiosity, but a globally available writing assistant. It is capable of taking and generating text in English and Simplified Chinese, and in the future I plan to incorporate more.
+
+Throughout testing, though, I did notice a number of issues. Some I managed to solve during my development process, e.g. instability of output quality, and connection & maintenance issues between the web service and my frontend. As of WriteLike itself, I have explored its current limitations and planned future actions as well.
+
+As of now, a major setback would be the response speed. Users need to wait for the front end to send the input text to the Render server - the analyzer to finish processing the text and forwarding the summary to Gemini - and Gemini to complete its response - and sending it back upstream to my frontend. Though the wait time for a 45 words long text is around 18 seconds on average (which is not too bad), the average wait time for a bulkier text of 300 words long would take around 1 minute before the result shows up in the front end. Ideally, I want the wait time to be around 10 seconds max, the faster the better. 
+
+I tested the time cost for each step along the pipeline, verifying timestamps on logs to pinpoint the main contributor to the delay. Though I expected it to be caused by the wait for Gemini to respond, the main reason that the response takes so long is actually due to the process of parsing the text using spaCy and TextBlob. Running the analyzer on Render's server with 512MB RAM and 0.1CPU takes longer that it does locally.
+
+Furthermore, the Render server's 512MB memory limit is harsh on my code's memory management - I optimized memory allocation the best I could, but because spaCy models are larger for Chinese than English, parsing Chinese text can still sometimes exceed the allowed memory quota and cause the server to fail. 
+
+In the future I plan to invest more into WriteLike and upgrade my server plan, which can solve both problems at once and also allow me to use larger models and integrate more languages.

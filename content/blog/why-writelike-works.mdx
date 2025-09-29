@@ -1,0 +1,186 @@
+---
+title: "WriteLike: How it works, Why it works"
+slug: "building-writelike"
+date: "2025-07-28"
+author: "Cynthia Yao"
+tags: ["NLP", "AI", "Feature Engineering", "Ethics", "LLM"]
+description: "The technical backbone of WriteLike. I show how spaCy + statistical features + Gemini combine to give explainable style analysis, why the feature engineering matters, and how I designed for robustness, efficiency, and ethical use."
+---
+
+### TL;DR
+
+A detailed breakdown of WriteLike’s technical core. I explain the pipeline (spaCy feature extraction, statistical summarization, compact JSON prompt → Gemini), why each feature matters, and how the system balances determinism with generative interpretation. I also cover safeguards, ethics, and why this approach is robust vs naïve LLM-only analysis.
+
+## First off, what *is* WriteLike?
+
+### Short Version:
+
+WriteLike’s analyzer turns a text into a compact, explainable representation of how the text works. It combines robust syntactic parsing (spaCy) with simple statistical feature engineering (sentence/token length distributions, clause counts, POS & dependency frequencies, lemma motifs, verb tense signals, and a small morphological sample) and then feeds a short, structured summary to a generative model (Gemini) to produce human-friendly advice.
+
+That mix is powerful because the NLP layer (spaCy) extracts objective, reproducible signals, and the LLM layer translates those signals into readable, actionable guidance — so the system is both explainable and usable. The analyzer code computes moments (mean / stdev / range) and an oscillation ratio that reveals rhythm/variation.
+
+### Longer technical explanation -- What is extracted, and why it matters
+
+Pipeline (end-to-end):
+
+* **Language detection** (langdetect) decides between English / Chinese pipelines. 
+* **Syntactic parsing** with spaCy: tokenization, POS tagging, dependency parsing, lemma extraction, morphological features. The parsing and feature extraction live in `analyze.py`. 
+* **Statistical summarization**: compute distributions (mean, std, range) and an *oscillation ratio* (how often length/structure changes between adjacent sentences/tokens) using `variance_measures`. This gives rhythm and regularity metrics. 
+* **Prompt composition & LLM call**: pack the compact JSON-like stat summary into a prompt template and call Gemini for human-readable interpretation; the integration is in `main.py` / FastAPI (`app.py`).
+
+---
+
+Features extracted and why each matters: 
+
+**1. Sentence-length distribution (avg, stdev, range, oscillation_ratio)**
+
+* *What:* Number of tokens per sentence; summarized by mean, standard deviation, min/max range, and a simple oscillation metric (how often successive sentences differ).
+* *Why it matters:* Controls rhythm and readability. Low variance → staccato/consistent style (short news-like sentences); high variance → more complex, flowing prose. Oscillation shows whether the writer alternates sentence lengths (a stylistic rhythm).
+
+**2. Token-length distribution (avg, stdev, range, oscillation_ratio)**
+
+* *What:* Average token (word) length excluding punctuation.
+* *Why:* Proxy for lexical complexity (longer tokens → more morphologically complex words / technical vocabulary). Useful for readability estimates and "register" (colloquial vs academic).
+
+**3. Clauses per sentence (counts + variance)**
+
+* *What:* Using dependency labels (`ccomp`, `xcomp`, `advcl`, `relcl`, `conj`) to estimate clause counts per sentence.
+* *Why:* Measures syntactic complexity and embedding depth. More clauses → denser informational style, possibly more subordinate clauses and complex arguments.
+
+**4. POS distribution (frequency of NOUN/VERB/ADJ/ADV/etc.)**
+
+* *What:* Count/frequency table of part-of-speech tags.
+* *Why:* Reveals focus and style — noun-heavy texts are descriptive/nominalized; verb-heavy texts are dynamic/action-oriented. POS mix is a compact fingerprint of voice.
+
+**5. Dependency relation distribution**
+
+* *What:* Frequency of dependency labels (e.g., `nsubj`, `dobj`, `advmod`).
+* *Why:* Shows typical syntactic patterns and the text’s structural orientation (e.g., heavy use of nominal modifiers vs adverbial modification).
+
+**6. Verb tense signals (token tags starting with V)**
+
+* *What:* Frequency of verb tense/morphological tags.
+* *Why:* Tense/aspect pattern maps to temporal framing (past narrative vs present commentary) and can be a strong style cue.
+
+**7. Lemma frequency / motif detection**
+
+* *What:* Top lemmas (normalized lexical items) and counts.
+* *Why:* Reveals themes and repetitive motifs (words/topics that the author returns to), useful for voice and topical fingerprinting.
+
+**8. Morphological samples**
+
+* *What:* Short samples of token morphs (from `token.morph`) for a few sentences.
+* *Why:* Useful for showing fine-grained grammatical patterns (case, number, aspect) — especially useful in morphologically rich languages.
+
+**9. Sentences & token lists (raw stats)**
+
+* *What:* Basic counts (sentence count, tokens etc.) and the sample excerpt included in the prompt.
+* *Why:* Provide context to the LLM and allow reproducible downstream checks.
+
+These features together form a **multidimensional style embedding (human-readable)**: rhythm (sentence/token stats), syntactic complexity (clauses, deps), lexical choice (lemmas/token-length), and temporal/frame cues (verb tense). Because each dimension is interpretable, the overall summary is both thorough and explainable.
+
+> Implementation note: the analyzer computes `variance_measures` (mean, sd, range, oscillation_ratio) and formats that into a `prompt_template` that Gemini then turns into readable advice. See `analyze.py` for the exact code and template usage. 
+
+---
+
+### Feature engineering — how I turn text into numbers (and why that matters)
+
+Feature engineering is the heart of WriteLike: the tool’s job is to translate surface writing into a compact, explainable vector of signals that together describe *how* a piece of writing behaves.
+
+Concretely, I treat each document as a small structured object of numeric features — a human-readable “style vector” — and I try to pick features that are: (1) interpretable, (2) testable, and (3) complementary (they each add different information about rhythm, syntax, or lexical choice). Below are the main ideas and the practical steps I use.
+
+**Feature groups and engineering choices**
+
+* **Rhythm & shape (continuous features)**
+
+  * Sentence-length stats: mean, standard deviation, min/max, *oscillation_ratio* (how often successive sentences differ).
+  * Token-length stats: same set of moments.
+    *Why:* these capture pacing and lexical density. I compute moments because they’re easy to test and explain.
+
+* **Syntactic complexity (discrete → normalized)**
+
+  * Clauses per sentence (estimated from dependency labels), frequency of subordinate clauses, coordination rates.
+  * Dependency relation distribution (normalized counts for `nsubj`, `dobj`, `advmod`, etc.).
+    *Why:* shows how the author uses subordination, embedding, and modification — key structural fingerprints.
+
+* **Lexical profile (categorical → frequency vectors)**
+
+  * POS distribution (NOUN, VERB, ADJ, ADV, PRON, etc.).
+  * Top lemmas and motif frequency (a short list of the most common lemmas normalized by document length).
+  * Token-level morphological markers (small sample) for languages where morphology matters.
+    *Why:* captures voice (nominal vs verbal), thematic repetition, and register.
+
+* **Temporal/frame signals**
+
+  * Verb tense/aspect distribution (counts of past/present/progressive markers).
+    *Why:* tells you whether the sample is narrative, reflective, or instructional.
+
+**Practical engineering details I apply**
+
+* **Normalization:** counts are normalized by sentence or token counts so features are comparable across documents of different lengths.
+* **Compact summary JSON:** features are serialized to a small JSON payload (a few KB at most) that I send to the LLM rather than the whole document. This keeps token use — and costs — low.
+* **Feature sparsity control:** for lemma motifs I cap the list (top N) and drop extremely rare items; for POS/dependency features I keep only the most frequent labels to reduce noise.
+* **Testability:** each numeric feature has a small unit test (sanity checks on a toy string) so I can detect regressions when models or spaCy versions change. Recruiters like this — it shows engineering discipline.
+* **Feature composition:** in practice I don’t hand a single flat vector to the user; I group features (rhythm, syntax, lexicon) and provide summary statistics and simple explanations the LLM can translate into advice.
+
+**Example (very small) payload I send to the LLM**
+
+```json
+{
+  "lang": "en",
+  "sentences": {"count": 8, "avg_len": 15.2, "std_len": 6.3, "oscillation": 0.25},
+  "tokens": {"avg_len": 4.6, "std_len": 2.1},
+  "pos": {"NOUN": 0.29, "VERB": 0.18, "ADJ": 0.07},
+  "top_lemmas": ["data","analysis","model"],
+  "verbs": {"past": 0.6, "present": 0.3}
+}
+```
+
+This compact summary is enough for the LLM to produce targeted advice: “Your sentences are mostly short with low oscillation — try varying length to add rhythm,” or “High noun ratio — consider swapping some nouns for verbs to make prose more active.”
+
+**Why an engineered approach is better than raw LLM-only analysis (for this product)**
+
+* It’s **explainable**: every recommendation maps back to a measurable feature you can inspect and test.
+* It’s **efficient**: fewer tokens to the LLM = lower cost + lower latency.
+* It’s **stable**: deterministic spaCy parsing and numeric features let me write unit tests and detect regressions automatically.
+* It’s **compositional**: you can mix and match features (e.g., rhythm + POS) to target specific stylistic edits.
+
+---
+
+### Why this approach is robust vs naive LLM-only approaches?
+
+* **Determinism & interpretability:** spaCy-derived signals are deterministic and testable, so you can explain *why* the LLM advised X.
+* **Token-efficiency / cost control:** sending a tight, structured summary to the LLM is far cheaper and faster than sending whole documents — and reduces noisy hallucination risk. (`main.py` and `app.py` show that you send a compact prompt, not the entire text).
+* **Easier testing & unitization:** stats are numeric and can be unit tested (you already have small sanity checks in your repo) rather than relying wholly on subjective LLM outputs.
+
+---
+
+### Ethics & limitations — what WriteLike is for (and what it isn’t)
+
+I want to be upfront about what this tool is built to do, and where it stops. In short: WriteLike is meant to *help you understand the components of style* and give concrete, learnable edits — not to teach people how to copy another writer verbatim.
+
+**What I want WriteLike to do (the intent)**
+
+* Help writers answer the question I used to ask myself: *“What made that passage work?”* — at the linguistic level.
+* Show *how* style is composed (rhythm, clause use, lemma choices) and give short, concrete edits or rewrites that illustrate those ideas.
+* Help you *incorporate* bits of style into your writing repertoire while keeping authorship and originality: implement the pattern, not the sentence.
+
+**What WriteLike is not (and why I say this explicitly)**
+
+* It is **not** a tool to create verbatim copies of a living author’s style for publication without attribution. Style imitation raises ethical and copyright concerns, and writing is more than patterns — it’s intention, experience, and voice.
+* It will **not** perfectly capture creative, cultural, or contextual nuances. Linguistic features are only a slice of what makes writing compelling.
+
+**Practical safeguards & ethical choices I built in**
+
+* **Transparency:** the UI shows both the numeric features and the generated advice so users see the source signals behind a recommendation. This makes the output interpretable and less like a magical rewrite.
+* **Privacy & rate-limits:** I enforce per-IP rate limits (beta caps) and don’t persist submitted text beyond short-lived analysis caches (when caching is enabled). If you want longer retention, there should be explicit consent.
+* **Plagiarism & attribution guidance:** rewrites are meant as *illustrative* templates — I include a short UI note encouraging users to rephrase and credit long-form inspiration when appropriate.
+* **Multilingual honesty:** I mark Chinese analysis as experimental in the UI — I don’t hide model uncertainty. That’s important: being explicit about where the tool is reliable and where it isn’t builds trust.
+* **No hallucination dependency:** because the LLM gets a compact, structured prompt (not the entire document), the generative layer’s role is to *interpret statistics*, not invent factual claims about the author or text.
+
+---
+
+### A short note on creativity & learning (personal)
+
+For me, WriteLike was useful because I often read a piece and couldn’t say *what exactly* made it feel “good.” Breaking style into measurable pieces helped me learn — not copy — and that’s what I want the tool to do for other writers. I absorb elements from lots of authors, and I hope WriteLike helps people do the same intentionally: borrow structures and rhythms, not strings.
+

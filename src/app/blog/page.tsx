@@ -26,23 +26,32 @@ type PostMeta = {
   title: string;
   date: string;
   description: string;
+  tags: string[];
+  readingTime: string;
+  wordCount: number;
 };
 
 function getPosts(): PostMeta[] {
-  // process.cwd() points to project root
   const blogDir = path.join(process.cwd(), paths.blogs_dir);
   const files = fs.readdirSync(blogDir);
 
   return files.map((filename) => {
     const slug = filename.replace(".mdx", "");
     const source = fs.readFileSync(path.join(blogDir, filename), "utf-8");
-    const { data } = matter(source);
+    const { data, content } = matter(source);
+
+    // Estimate reading time (200 words per minute)
+    const words = content.split(/\s+/).filter(Boolean).length;
+    const minutes = Math.max(1, Math.ceil(words / 200));
 
     return {
       slug,
       title: data.title as string,
       date: data.date as string,
       description: data.description as string,
+      tags: (data.tags as string[]) || [],
+      readingTime: `${minutes} min read`,
+      wordCount: words,
     };
   });
 }
@@ -71,9 +80,28 @@ export default function Blog() {
               href={`/blog/${post.slug}`}
               className="block p-4 border rounded-lg hover:bg-accent"
             >
-              <h2 className="font-mono text-lg md:text-xl text-foreground m-4 mt-2 mb-6 font-semibold">{post.title}</h2>
-              <p className="font-light text-sm leading-5 m-4 text-muted-foreground">{post.description}</p>
-              <span className="text-xs text-foreground">{post.date}</span>
+              <h2 className="font-mono text-lg md:text-xl text-foreground m-4 mt-2 mb-2 font-semibold">
+                {post.title}
+              </h2>
+              <p className="font-light text-sm leading-5 m-4 text-muted-foreground">
+                {post.description}
+              </p>
+              <div className="flex flex-wrap gap-2 m-4 mb-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-0.5 text-xs rounded-full bg-muted text-foreground"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div className="flex justify-between items-center m-4">
+                <span className="text-xs text-muted-foreground">{post.date}</span>
+                <span className="text-xs text-muted-foreground">
+                  {post.readingTime} ({post.wordCount} words)
+                </span>
+              </div>
             </Link>
           ))}
         </div>

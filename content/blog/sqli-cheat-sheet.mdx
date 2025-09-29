@@ -1,7 +1,7 @@
 ---
 title: "SQLi Cheat Sheet — quick reference"
 slug: "sqli-cheatsheet"
-date: "2025-08-08"
+date: "2025-06-18"
 author: "Cynthia Yao"
 tags: ["Security", "Cheatsheet"]
 description: "One-page engineer cheat sheet: grants, quick tests, and a tiny pytest that checks a parameterized query doesn't leak on a classic payload."
@@ -188,13 +188,3 @@ pytest -q
 * **Whitelist** identifiers; never accept arbitrary table/column names.
 * **Least privilege** for runtime DB users.
 * **Automate tests** that assert classic payloads do not leak data.
-
-If you want, I’ll:
-
-* add a `Makefile` target (`make test`) that runs pytest and a couple of smoke `curl` checks, or
-* generate a one-click GitHub Actions CI snippet that runs the pytest above on push to `main`.
-
-Which would you prefer?
-
-```
-```

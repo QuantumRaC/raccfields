@@ -14,5 +14,6 @@ export const paths = {
   blogs_dir: "content/blog",
   textanalysis: "https://t3xtanlys.onrender.com/analyze",
   // "http://127.0.0.1:8000/analyze"
+  obj_renderer: "https://github.com/QuantumRaC/OBJ-Mesh-Renderer",
   aboutSite: "/"
 }

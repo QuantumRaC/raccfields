@@ -15,16 +15,16 @@ import { paths } from "@/lib/paths"
 
 const devComponents: { title: string; href: string; description: string }[] = [
   {
-    title: "T3xtAnlys",
+    title: "WriteLike",
     href: paths.textanlys, //TODO
     description:
-      "NLP tool for style, grammar, and sentiment analysis",
+      "Analyze and understand writing style at a glance",
   },
   {
     title: "Mesh Renderer",
-    href: "/docs/primitives/hover-card", //TODO
+    href: paths.obj_renderer, //TODO
     description:
-      "Renders OBJ meshes with lighting, textures, and PN triangles",
+      "Renders OBJs with lighting, textures, and PN triangles",
   },
 ]
 const secComponents: { title: string; href: string; description: string }[] = [

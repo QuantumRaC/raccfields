@@ -3,75 +3,136 @@ import path from "path";
 import matter from "gray-matter";
 import { remark } from "remark";
 import html from "remark-html";
+import Link from "next/link";
 import Footer from "@/components/layout/footer-box";
 import TopNavigationMenu from "@/components/layout/top-navigation-menu";
 import ModeToggle from "@/components/layout/theme-toggle";
 
-export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
-    const filePath = path.join(process.cwd(), "content", "blog", `${slug}.mdx`);
-    const source = fs.readFileSync(filePath, "utf-8");
-    const { content, data } = matter(source);
+type PostMeta = {
+  slug: string;
+  title: string;
+  date: string;
+};
 
-    // ✅ Convert markdown -> HTML with remark
-    const processedContent = await remark()
-        .use(html, { sanitize: false })
-        .process(content);
-    const contentHtml = processedContent.toString();
+function getAllPosts(): PostMeta[] {
+  const blogDir = path.join(process.cwd(), "content", "blog");
+  const files = fs.readdirSync(blogDir);
 
-    return (
-        <div>
-            <div className="p-6 flex items-center">
-                <div className="flex-1" />
-                <div>
-                    <TopNavigationMenu />
-                </div>
-                <div className="flex-1 flex justify-end">
-                    <ModeToggle />
-                </div>
-            </div>
+  const posts = files.map((filename) => {
+    const slug = filename.replace(".mdx", "");
+    const source = fs.readFileSync(path.join(blogDir, filename), "utf-8");
+    const { data } = matter(source);
+    return {
+      slug,
+      title: data.title as string,
+      date: data.date as string,
+    };
+  });
 
-            <div className="mb-16">
-                <article>
-                    <div className="max-w-5xl w-[90%] mx-auto">
-                        <h1 className="text-6xl md:text-7xl font-mono font-thin mt-12 mb-4 text-foreground ">
-                            {data.title}
-                        </h1>
-                        <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line mb-20">
-                            {data.date}
-                        </p>
-                    </div>
+  // Sort alphabetically for now
+  return posts.sort((a, b) => a.title.localeCompare(b.title));
+}
 
-                    {/* Inject parsed markdown as HTML */}
-                    <div
-  dangerouslySetInnerHTML={{ __html: contentHtml }}
-  className="
-    prose max-w-4xl w-[80%] mx-auto
-    text-foreground
+export default async function BlogPost({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const filePath = path.join(process.cwd(), "content", "blog", `${slug}.mdx`);
+  const source = fs.readFileSync(filePath, "utf-8");
+  const { content, data } = matter(source);
 
-    prose-h1:text-foreground prose-h1:text-4xl prose-h1:font-mono prose-h1:m-4 prose-h1:mt-12 prose-h1:font-thin
+  // ✅ Convert markdown -> HTML
+  const processedContent = await remark().use(html, { sanitize: false }).process(content);
+  const contentHtml = processedContent.toString();
 
-    prose-h2:text-foreground prose-h2:text-3xl prose-h2:font-mono prose-h2:m-4 prose-h2:mt-12 prose-h2:font-thin
+  // Get all posts for navigation
+  const posts = getAllPosts();
+  const currentIndex = posts.findIndex((p) => p.slug === slug);
 
-    prose-h3:text-muted-foreground prose-h3:text-3xl prose-h3:font-mono prose-h3:m-4 prose-h3:mt-12 prose-h3:font-thin
+  const prevPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
+  const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
 
-    prose-p:whitespace-pre-line prose-p:text-foreground prose-p:font-thin
-    prose-li:font-thin prose-li:text-foreground
-    prose-a:font-thin prose-a:text-foreground
-    prose-blockquote:font-thin prose-blockquote:text-foreground
-    prose-strong:font-normal prose-strong:text-foreground
-
-    prose-code:font-thin prose-code:text-foreground prose-code:bg-popover prose-code:px-1 prose-code:rounded
-
-    prose-pre:bg-popover prose-pre:text-foreground prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-auto
-  "
-/>
-
-
-
-                </article>
-            </div>
-            <Footer />
+  return (
+    <div>
+      <div className="p-6 flex items-center">
+        {/* Back button */}
+        <div className="flex-1">
+          <Link
+            href="/blog"
+            className="flex items-center text-sm font-mono text-muted-foreground hover:underline"
+          >
+            ← Back to All Blogs
+          </Link>
         </div>
-    );
+        <div>
+          <TopNavigationMenu />
+        </div>
+        <div className="flex-1 flex justify-end">
+          <ModeToggle />
+        </div>
+      </div>
+
+      <div className="mb-16">
+        <article>
+          <div className="max-w-5xl w-[90%] mx-auto">
+            <h1 className="text-6xl md:text-7xl font-mono font-thin mt-12 mb-4 text-foreground">
+              {data.title}
+            </h1>
+            <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line mb-20">
+              {data.date}
+            </p>
+          </div>
+
+          {/* Inject parsed markdown as HTML */}
+          <div
+            dangerouslySetInnerHTML={{ __html: contentHtml }}
+            className="
+              prose max-w-4xl w-[80%] mx-auto
+              text-foreground
+
+              prose-h1:text-foreground prose-h1:text-4xl prose-h1:font-mono prose-h1:m-4 prose-h1:mt-12 prose-h1:font-thin
+
+              prose-h2:text-foreground prose-h2:text-3xl prose-h2:font-mono prose-h2:m-4 prose-h2:mt-12 prose-h2:font-thin
+
+              prose-h3:text-muted-foreground prose-h3:text-3xl prose-h3:font-mono prose-h3:m-4 prose-h3:mt-12 prose-h3:font-thin
+
+              prose-p:whitespace-pre-line prose-p:text-foreground prose-p:font-thin
+              prose-li:font-thin prose-li:text-foreground
+              prose-a:font-thin prose-a:text-foreground
+              prose-blockquote:font-thin prose-blockquote:text-foreground
+              prose-strong:font-normal prose-strong:text-foreground
+
+              prose-code:font-thin prose-code:text-foreground prose-code:bg-popover prose-code:px-1 prose-code:rounded
+
+              prose-pre:bg-popover prose-pre:text-foreground prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-auto
+            "
+          />
+        </article>
+
+        {/* Prev/Next navigation */}
+        <div className="max-w-4xl w-[80%] mx-auto mt-24 flex justify-between text-sm font-mono">
+          {prevPost ? (
+            <Link
+              href={`/blog/${prevPost.slug}`}
+              className="flex items-center text-muted-foreground hover:underline"
+            >
+              ← Previous post:<br />{prevPost.title}
+            </Link>
+          ) : <div />}
+          {nextPost ? (
+            <Link
+              href={`/blog/${nextPost.slug}`}
+              className="flex items-center text-muted-foreground hover:underline"
+            >
+              Next post:<br />{nextPost.title} →
+            </Link>
+          ) : <div />}
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
 }
