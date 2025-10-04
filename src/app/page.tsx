@@ -12,7 +12,7 @@ const featuredPosts = [
   {
     slug: "building-my-site",
     title: "Building My Site: From npm run dev to Secure Deployment",
-    date: "2025-07-27",
+    date: "2025-09-20",
     description:
       "A behind-the-scenes account of the design decisions I made while building my portfolio with Next.js + Shadcn, a FastAPI microservice on Render, and Vercel & GoDaddy hosting. I walk through the accidents that forced trade-offs, the debugging steps I took in production, and the security/operational fixes I shipped.",
     tags: ["Web Dev", "Infrastructure", "Deployment", "Thought Process", "Reflection"],
@@ -20,7 +20,7 @@ const featuredPosts = [
   {
     slug: "why-writelike-works",
     title: "WriteLike: How it works, Why it works",
-    date: "2025-07-28",
+    date: "2025-10-01",
     description:
       "The technical backbone of WriteLike. I show how spaCy + statistical features + Gemini combine to give explainable style analysis, why the feature engineering matters, and how I designed for robustness, efficiency, and ethical use.",
     tags: ["NLP", "AI", "Feature Engineering", "Ethics", "LLM"],
@@ -36,7 +36,7 @@ const featuredPosts = [
   {
     slug: "building-writelike",
     title: "The Story of WriteLike",
-    date: "2025-07-29",
+    date: "2025-09-17",
     description:
       "My journey building WriteLike: from spaCy experiments to a deployed web service. My motivation, design decisions, GenAI integration, deployment stack, and the current limitations.",
     tags: ["NLP", "AI", "Thought Process", "Deployment", "Reflection"],
