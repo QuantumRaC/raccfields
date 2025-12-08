@@ -1,7 +1,7 @@
 "use client"
 import * as React from "react"
 import { useState } from "react"
-import Link from "next/link"
+import Link from "next/link" 
 import TopNavigationMenu from "@/components/layout/top-navigation-menu"
 import Footer from "@/components/layout/footer-box"
 import ModeToggle from "@/components/layout/theme-toggle"
