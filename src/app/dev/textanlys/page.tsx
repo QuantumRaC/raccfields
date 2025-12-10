@@ -22,7 +22,7 @@ const Title = () => {
       <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line">
         WriteLike helps writers, editors, and researchers quickly understand the tone, style, and structure of any text. Powered by spaCy and AI, it identifies key linguistic patterns, sentiment, and readability metrics, turning complex text into actionable insights — making writing analysis faster, easier, and more effective.
       </p>
-    </section>
+    </section> 
   )
 }
 
