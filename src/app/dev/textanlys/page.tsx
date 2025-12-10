@@ -8,7 +8,7 @@ import ModeToggle from "@/components/layout/theme-toggle"
 import TextareaWithText from "@/components/layout/text-area-with-text"
 import ReactMarkdown from "react-markdown"
 import remarkBreaks from "remark-breaks"
-import remarkGfm from "remark-gfm"
+import remarkGfm from "remark-gfm" 
 
 import { paths } from "@/lib/paths"
 
