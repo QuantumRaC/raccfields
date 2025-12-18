@@ -26,7 +26,11 @@ export async function secureFetch(url: string, options: SecureRequestInit = {}):
             hashlib.sha256
         ).hexdigest()
      */
-
+    if (!SECRET_KEY) {
+        console.log("SECRET_KEY is undefined");
+        throw new Error("SECRET_KEY is not defined");
+    }
+    
     // 1. Fetching request details
     const timestamp = Math.floor(Date.now() / 1000).toString();
     const method = (options.method || "GET").toUpperCase(); // Default to GET
@@ -53,10 +57,7 @@ export async function secureFetch(url: string, options: SecureRequestInit = {}):
     // 2. Constructing the message & signature
     const message = `${USER_ID}.${timestamp}.${method}.${path}.${bodyStr}`;
     const signature = await generateSignature(message, SECRET_KEY || "");
-    if (!SECRET_KEY) {
-        console.log("SECRET_KEY is undefined");
-        throw new Error("SECRET_KEY is not defined");
-    }
+
     // 3. Adding in custom headers
     const headers: HeadersInit = {
         ...(options.headers || {}),
