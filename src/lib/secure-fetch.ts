@@ -8,10 +8,14 @@
 const SECRET_KEY = process.env.NEXT_PUBLIC_RSEC_SECRET || "testingtestingtesting"; // hardcoded for testing
 const USER_ID = "1"; // hardcoded for testing
 
+interface SecureRequestInit extends Omit<RequestInit, "body"> {
+  body?: any; // We allow 'any' here so you can pass objects like { text: inp }
+}
+
 /**
  * A wrapper around the native fetch API that adds HMAC-SHA256 signatures.
  */
-export async function secureFetch(url: string, options: RequestInit = {}): Promise<Response> {
+export async function secureFetch(url: string, options: SecureRequestInit = {}): Promise<Response> {
     /* Backend code for reference:
     body_str = body_bytes.decode()
 
