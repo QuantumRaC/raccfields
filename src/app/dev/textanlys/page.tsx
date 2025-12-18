@@ -11,6 +11,7 @@ import remarkBreaks from "remark-breaks"
 import remarkGfm from "remark-gfm" 
 
 import { paths } from "@/lib/paths"
+import { secureFetch } from "@/lib/secure-fetch"
 
 const Title = () => {
   return (
@@ -86,10 +87,16 @@ export default function TextAnlys() {
     setError("")
 
     try {
-      const res = await fetch(paths.textanalysis, {
+      // const res = await fetch(paths.textanalysis, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ text: inp }),
+      // })
+
+      const res = await secureFetch(paths.textanalysis, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: inp }),
+        body: { text: inp },
       })
 
       if (!res.ok) {

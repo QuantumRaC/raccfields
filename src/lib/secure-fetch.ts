@@ -5,7 +5,7 @@
  * 
 */
 
-const SECRET_KEY = process.env.NEXT_PUBLIC_RSEC_SECRET || "";
+const SECRET_KEY = process.env.NEXT_PUBLIC_RSEC_SECRET || "testingtestingtesting"; // hardcoded for testing
 const USER_ID = "1"; // hardcoded for testing
 
 /**
