@@ -100,7 +100,7 @@ export default function TextAnlys() {
       })
 
       if (!res.ok) {
-        setError(`Server error: ${res.status}`)
+        setError(`Server error: ${res.status}; details: ${await res.text()}`)
         throw new Error(`Server error: ${res.status}`)
       }
 
