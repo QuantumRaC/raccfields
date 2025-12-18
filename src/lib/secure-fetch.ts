@@ -52,7 +52,7 @@ export async function secureFetch(url: string, options: SecureRequestInit = {}):
 
     // 2. Constructing the message & signature
     const message = `${USER_ID}.${timestamp}.${method}.${path}.${bodyStr}`;
-    const signature = await generateSignature(message, SECRET_KEY);
+    const signature = await generateSignature(message, SECRET_KEY || "");
 
     // 3. Adding in custom headers
     const headers: HeadersInit = {
