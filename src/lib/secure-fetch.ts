@@ -5,7 +5,7 @@
  * 
 */
 
-const SECRET_KEY = process.env.NEXT_PUBLIC_RSEC_SECRET; // hardcoded for testing
+const SECRET_KEY = process.env.NEXT_PUBLIC_RSEC_SECRET || "c8669572d17c625e2680181354f424e1"; // hardcoded for testing
 const USER_ID = "1"; // hardcoded for testing
 
 interface SecureRequestInit extends Omit<RequestInit, "body"> {

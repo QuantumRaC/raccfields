@@ -82,9 +82,14 @@ export default function TextAnlys() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
+  // For calculating latency
+  const [latency, setLatency] = useState<number | null>(null) // in milliseconds
+
   const handleSubmit = async () => {
     setIsLoading(true)
     setError("")
+    setLatency(null)
+    const startTime = performance.now()
 
     try {
       // const res = await fetch(paths.textanalysis, {
@@ -111,6 +116,11 @@ export default function TextAnlys() {
         return
       }
 
+      // Measure latency
+      const endTime = performance.now()
+      setLatency(Math.round(endTime - startTime))
+      console.log(`Latency: ${Math.round(endTime - startTime)} ms`)
+      
       setAnalysisResult(data.analysis || "")
     } catch (err: unknown) {
       if (err instanceof TypeError && err.message === "Failed to fetch") {
