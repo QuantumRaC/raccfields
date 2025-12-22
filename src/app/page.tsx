@@ -70,7 +70,7 @@ const PageHero = () => {
 
       <p className="text-lg md:text-base max-w-2xl font-mono text-muted-foreground whitespace-pre-line">
         <Link href={paths.security} className="hover:underline">
-          Cybersecurity enthusiast
+          Application Security enthusiast
         </Link>
         {`, `}
         <Link href={paths.dev} className="hover:underline">
