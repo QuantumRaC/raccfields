@@ -5,7 +5,6 @@ import "./globals.css";
 
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import Effects from "@/components/Effects";
 import { site } from "@/content/site";
 
 const sans = Geist({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
@@ -47,7 +46,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Nav />
         <main id="main">{children}</main>
         <Footer />
-        <Effects />
         <SpeedInsights />
       </body>
     </html>

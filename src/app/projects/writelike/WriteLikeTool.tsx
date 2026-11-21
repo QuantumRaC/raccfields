@@ -11,7 +11,7 @@ const ENDPOINT = "https://t3xtanlys.onrender.com/analyze";
 const SAMPLE = `To generalize about war is like generalizing about peace. Almost everything is true. Almost nothing is true. At its core, perhaps, war is just another name for death, and yet any soldier will tell you, if he tells the truth, that proximity to death brings with it a corresponding proximity to life. After a firefight, there is always the immense pleasure of aliveness. The trees are alive. The grass, the soil—everything. All around you things are purely living, and you among them, and the aliveness makes you tremble.
 — Tim O'Brien, The Things They Carried`;
 
-const EXAMPLE_OUTPUT = `**Example output** — press *Analyse* to run it live.
+const EXAMPLE_OUTPUT = `**Example output.** Press *Analyse this text* to run it live.
 
 **Overall style & tone**
 Frequent lemmas like "generalize", "war", "true" and "death" suggest a serious, reflective, analytical tone. It leans formal rather than conversational.
@@ -100,7 +100,7 @@ export default function WriteLikeTool() {
               Clear
             </button>
             <button className="btn btn-primary" onClick={analyse} disabled={loading || !text.trim()}>
-              {loading ? "Analysing…" : "Analyse"} <span className="arrow">→</span>
+              {loading ? "Analysing…" : "Analyse this text"}
             </button>
           </div>
         </div>

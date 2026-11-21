@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPosts } from "@/lib/posts";
-import Scramble from "@/components/Scramble";
 import PostList from "./PostList";
 
 export const metadata: Metadata = {
@@ -20,10 +19,9 @@ export default function BlogIndex() {
           <span>/</span>
           <span>writing</span>
         </nav>
-        <Scramble as="h1" className="page-title" text="Writing" />
+        <h1 className="page-title">Writing</h1>
         <p className="page-sub">
-          Notes on what I build and break — how my projects work, what went wrong in production, and what I took away
-          from security labs.
+          How my projects work, what went wrong when I deployed them, and notes from security labs.
         </p>
         <div className="page-meta">
           <span className="label">

@@ -14,10 +14,10 @@ export default function NotFound() {
       <p className="page-sub">The page moved or never existed. The globe is still spinning on the home page.</p>
       <div className="hero-cta">
         <Link href="/" className="btn btn-primary">
-          Home <span className="arrow">→</span>
+          Go to the home page
         </Link>
         <Link href="/blog" className="btn">
-          Writing
+          Read my writing
         </Link>
       </div>
     </section>

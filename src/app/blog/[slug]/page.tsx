@@ -81,7 +81,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             </Link>
           ) : (
             <Link href="/blog" className="more">
-              All writing <span>→</span>
+              Read all posts
             </Link>
           )}
         </div>

@@ -2,14 +2,10 @@ import Link from "next/link";
 
 import AsciiGlobe, { type Marker } from "@/components/AsciiGlobe";
 import AsciiPortrait from "@/components/AsciiPortrait";
-import CountUp from "@/components/CountUp";
 import FusionViz from "@/components/FusionViz";
-import PaymentFlow from "@/components/PaymentFlow";
-import Scramble from "@/components/Scramble";
-import SectionHead from "@/components/SectionHead";
-import SparkPanel from "@/components/SparkPanel";
+import RedNoteMap from "@/components/RedNoteMap";
 import { site } from "@/content/site";
-import { courseThemes, courses, skills } from "@/content/profile";
+import { skills } from "@/content/profile";
 import { getPosts } from "@/lib/posts";
 import { formatDate } from "@/lib/format";
 
@@ -21,6 +17,10 @@ const MARKERS: Marker[] = [
 
 const ext = { target: "_blank", rel: "noreferrer" } as const;
 
+function Stack({ items }: { items: string[] }) {
+  return <p className="stack">{items.join(" · ")}</p>;
+}
+
 export default function Home() {
   const posts = getPosts().slice(0, 4);
 
@@ -30,57 +30,67 @@ export default function Home() {
       <section className="hero" aria-labelledby="hero-name">
         <div className="wrap hero-grid">
           <div className="hero-load">
-            <div className="hero-kicker" style={{ ["--i" as string]: 0 }}>
-              <span className="label">
-                <span className="y">●</span> UF Computer Science · Graduating May 2027
-              </span>
-            </div>
             <h1 id="hero-name" className="hero-name" style={{ ["--i" as string]: 1 }}>
-              <Scramble text={site.name} duration={900} />
+              {site.name}
               <span className="alt">Xinyi Yao · 姚欣依</span>
             </h1>
-            <p className="hero-role" style={{ ["--i" as string]: 2 }}>
-              <span className="y">Backend &amp; payments engineering</span>{" "}
-              <span className="sep">/</span>{" "}
-              <span className="c">Geospatial ML research</span>
-            </p>
+            <ul className="hero-roles" style={{ ["--i" as string]: 2 }}>
+              <li>
+                <span className="hr-time">Sep 2026 – now</span>
+                <a href="#xp-geodi" className="hr-title">
+                  Research Assistant, Geospatial ML{" "}
+                  <span className="hr-org">
+                    <span className="hr-at">at</span> <span className="c">GeoDI Lab, UF</span>
+                  </span>
+                </a>
+                <span className="hr-line">Machine learning research on satellite imagery.</span>
+              </li>
+              <li>
+                <span className="hr-time">May – Aug 2026</span>
+                <a href="#xp-rednote" className="hr-title">
+                  Backend Engineering Intern, Payments{" "}
+                  <span className="hr-org">
+                    <span className="hr-at">at</span> <span className="y">RedNote</span>
+                  </span>
+                </a>
+                <span className="hr-line">Backend work on live payment services.</span>
+              </li>
+              <li>
+                <span className="hr-time">Until May 2027</span>
+                <a href="#xp-uf" className="hr-title">
+                  B.S. Computer Science{" "}
+                  <span className="hr-org">
+                    <span className="hr-at">at</span> <span className="m">University of Florida</span>
+                  </span>
+                </a>
+                <span className="hr-line">Final year.</span>
+              </li>
+            </ul>
             <p className="hero-copy" style={{ ["--i" as string]: 3 }}>
-              Final-year computer science student at the University of Florida. At <strong>RedNote</strong> in
-              Shanghai I built and shipped payment services that run on live traffic; now I&apos;m reproducing and
-              benchmarking geospatial foundation models for satellite imagery in UF&apos;s <strong>GeoDi Lab</strong>.
+              Open to internships and graduate roles in the US, Shanghai or Australia.
             </p>
-            <p className="hero-copy" style={{ ["--i" as string]: 4 }}>
-              <strong>Australian citizen</strong>, relocating to Sydney after graduation — full work rights in
-              Australia, no sponsorship required. Open to internships and graduate roles in any location.
-            </p>
-            <div className="hero-cta" style={{ ["--i" as string]: 5 }}>
+            <div className="hero-cta" style={{ ["--i" as string]: 4 }}>
               <a className="btn btn-primary" href={`mailto:${site.email}`}>
-                Email me <span className="arrow">→</span>
+                Email me
               </a>
               {site.resume ? (
                 <a className="btn" href={site.resume} {...ext}>
-                  Résumé (PDF) <span className="arrow">↓</span>
+                  Download my résumé
                 </a>
               ) : null}
-              <a className="btn" href={site.linkedin} {...ext}>
-                LinkedIn
-              </a>
-              <a className="btn" href={site.github} {...ext}>
-                GitHub
-              </a>
+              <span className="hero-links">
+                <a className="link" href={site.linkedin} {...ext}>
+                  LinkedIn
+                </a>
+                <a className="link" href={site.github} {...ext}>
+                  GitHub
+                </a>
+              </span>
             </div>
-            <dl className="hero-facts" style={{ ["--i" as string]: 6 }}>
+            <dl className="hero-facts" style={{ ["--i" as string]: 5 }}>
               <div>
-                <dt>GPA</dt>
-                <dd>3.86 / 4.00</dd>
-              </div>
-              <div>
-                <dt>Degree</dt>
-                <dd>B.S. CS · UF</dd>
-              </div>
-              <div>
-                <dt>Work rights</dt>
-                <dd>AU citizen</dd>
+                <dt>Based</dt>
+                <dd>Gainesville, FL</dd>
               </div>
               <div>
                 <dt>Languages</dt>
@@ -92,197 +102,104 @@ export default function Home() {
           <div className="hero-visual">
             <AsciiGlobe
               markers={MARKERS}
-              label="ASCII globe tracing a route from Gainesville, Florida to Shanghai to Sydney."
+              label="Globe drawn in text characters, marking Gainesville, Shanghai and Sydney."
             />
-            <div className="globe-caption">
-              <span className="globe-route">
-                <span className="c">GNV</span> <span className="faint">→</span> <span className="m">SHA</span>{" "}
-                <span className="faint">→</span> <span className="y">SYD</span>
-              </span>
-              <span className="label">US · China · Australia — drag to rotate</span>
-            </div>
           </div>
         </div>
-        <a href="#experience" className="scroll-hint" aria-label="Scroll to experience">
-          ↓ SCROLL
-        </a>
       </section>
 
       {/* ------------------------------------------------------ EXPERIENCE */}
       <section id="experience" className="section">
         <div className="wrap">
-          <SectionHead
-            index="01"
-            title="Experience"
-            lede="Production payments engineering on real traffic, then machine learning research on satellite imagery."
-          />
+          <div className="sec-head">
+            <h2 className="sec-title">Experience</h2>
+            <p className="sec-lede">Most recent first.</p>
+          </div>
 
           <div className="xp">
-            {/* RedNote */}
-            <article className="panel xp-feature" data-reveal>
+            <article id="xp-geodi" className="panel xp-feature">
               <div>
-                <div className="xp-meta">
-                  <span className="status status-shipped">Shipped</span>
-                  <span className="label">May – Aug 2026 · Shanghai</span>
+                <p className="xp-when">Sep 2026 – now · Gainesville, FL</p>
+                <h3 className="xp-org">GeoDI Lab, University of Florida</h3>
+                <p className="xp-role">Research assistant, geospatial machine learning</p>
+                <div className="xp-body">
+                  <p>
+                    I work on a project about filling gaps in satellite imagery: predicting a sharp image for days when
+                    only a coarse one was taken, and testing how well large pretrained models for satellite data
+                    (geospatial foundation models) cope when some of a sensor&apos;s colour or infrared channels are
+                    missing.
+                  </p>
+                  <p>
+                    My part is reproducing the baseline model, running experiments, comparing it with existing methods
+                    and analysing the results.
+                  </p>
                 </div>
+                <Stack items={["Python", "PyTorch", "Remote sensing"]} />
+                <Link href="/work/geofm-stf" className="more">
+                  Read the project write-up
+                </Link>
+              </div>
+              <FusionViz />
+            </article>
+
+            <article id="xp-rednote" className="panel xp-feature">
+              <div>
+                <p className="xp-when">May – Aug 2026 · Shanghai</p>
                 <h3 className="xp-org">RedNote (Xiaohongshu)</h3>
-                <p className="xp-role">Backend / payments engineering intern · Java microservices</p>
-                <ul className="xp-list">
-                  <li>
-                    Built a <strong>cashier pre-query</strong> spanning 3 services and all 24 payment methods,
-                    handling roughly 48,000 requests a day.
-                  </li>
-                  <li>
-                    Built <strong>PayPal reporting ingestion</strong> for 4 report types, feeding foreign-exchange
-                    handling and finance reconciliation — rolled out to 100%.
-                  </li>
-                  <li>
-                    Built, solo, a full-stack <strong>Apple in-app purchase lookup tool</strong> handling roughly
-                    500 requests a day.
-                  </li>
-                  <li>
-                    Led a <strong>FastJson remote-code-execution remediation</strong>: audited 13 repositories, found
-                    10 affected, and migrated 4 core payment repositories to Gson within 24 hours of disclosure.
-                  </li>
-                </ul>
-                <div className="xp-foot">
-                  <ul className="chips">
-                    {["Java", "Spring Boot", "Thrift RPC", "Apollo", "PayPal", "WeChat Pay", "Apple IAP", "Gson", "Vue.js"].map(
-                      (t) => (
-                        <li key={t} className="chip">
-                          {t}
-                        </li>
-                      )
-                    )}
-                  </ul>
-                  <Link href="/work/rednote" className="more">
-                    Case study <span>→</span>
-                  </Link>
+                <p className="xp-role">Backend engineering intern, Payments</p>
+                <div className="xp-body">
+                  <p>
+                    RedNote is a Chinese social media and shopping app. I worked on the Java services behind its
+                    payments, mainly what the checkout offers, and on the team&apos;s response to a security flaw in a
+                    widely used Java library.
+                  </p>
+                  <p>
+                    I also brought in its PayPal transaction summaries for currency exchange and reconciliation, added
+                    a rule for which bank accounts refunds are paid from, sent risk data to WeChat Pay, and built a
+                    lookup tool that lets support staff check users&apos; Apple in-app purchase records themselves.
+                  </p>
                 </div>
+                <Stack items={["Java", "Spring Boot", "Microservices"]} />
+                <Link href="/work/rednote" className="more">
+                  Read the internship write-up
+                </Link>
               </div>
+              <RedNoteMap />
+            </article>
+
+            <article id="xp-uf" className="panel xp-small">
               <div>
-                <PaymentFlow />
-                <div className="metrics">
-                  <div className="metric">
-                    <div className="metric-v y">
-                      ~<CountUp value={48000} />
-                    </div>
-                    <div className="metric-k">pre-query requests / day</div>
-                  </div>
-                  <div className="metric">
-                    <div className="metric-v">
-                      <CountUp value={24} />
-                    </div>
-                    <div className="metric-k">payment methods covered</div>
-                  </div>
-                  <div className="metric">
-                    <div className="metric-v sm">
-                      <CountUp value={13} /> → <CountUp value={10} /> → <span className="c"><CountUp value={4} /></span>
-                    </div>
-                    <div className="metric-k">repos audited → affected → core repos migrated</div>
-                  </div>
-                  <div className="metric">
-                    <div className="metric-v m">
-                      &lt;<CountUp value={24} />h
-                    </div>
-                    <div className="metric-k">from RCE disclosure to migration</div>
-                  </div>
-                </div>
+                <p className="xp-when">Until May 2027 · Gainesville, FL</p>
+                <h3 className="xp-org xp-org-sm">University of Florida</h3>
+                <p className="xp-role">B.S. Computer Science</p>
+              </div>
+              <div className="xp-body">
+                <p>
+                  Coursework across systems, algorithms, programming languages, databases, AI, natural language
+                  processing and security, with maths through linear algebra and statistics.
+                </p>
+                <p>
+                  GPA 3.86 / 4.00. President&apos;s Honor Roll (Spring 2025) and Dean&apos;s List (2024–2026).
+                </p>
+                {site.showMasters ? (
+                  <p>Planned: UNSW Master of Information Technology (AI), under consideration.</p>
+                ) : null}
               </div>
             </article>
 
-            {/* GeoDi Lab */}
-            <article className="panel xp-feature" data-reveal>
+            <article className="panel xp-small">
               <div>
-                <div className="xp-meta">
-                  <span className="status status-progress">In progress</span>
-                  <span className="label">Sept 2026 – present · University of Florida</span>
-                </div>
-                <h3 className="xp-org">GeoDi Lab, UF</h3>
-                <p className="xp-role">Geospatial machine learning research · project GeoFM-STF</p>
-                <p className="dim" style={{ marginTop: 14 }}>
-                  Spatiotemporal fusion: predicting fine-resolution satellite imagery for dates when only coarse
-                  imagery exists — and testing how well foundation models cope when spectral bands are missing.
-                </p>
-                <ul className="xp-list">
-                  <li>
-                    Reproduced <strong>SimpleDOFA</strong>, a DOFA-based foundation-model approach, as the baseline.
-                  </li>
-                  <li>
-                    Ran Part 1 across <strong>5 missing-band scenarios × 3 random seeds</strong> on the CIA and LGC
-                    benchmark datasets.
-                  </li>
-                  <li>
-                    Built per-band analysis with <strong>sign tests</strong>, reporting SSIM and cross-correlation.
-                  </li>
-                  <li>
-                    Benchmarking <strong>GAN-STFM</strong> and <strong>ECPW-STFN</strong> — in progress, with
-                    non-convergent seeds reported rather than dropped.
-                  </li>
-                </ul>
-                <p className="note" style={{ marginTop: 20 }}>
-                  <b>Paper in preparation</b> — targeting an IEEE remote-sensing venue.
-                </p>
-                <div className="xp-foot">
-                  <ul className="chips">
-                    {["Python", "PyTorch", "DOFA", "HiPerGator HPC", "SSIM / CC", "Sign tests"].map((t) => (
-                      <li key={t} className="chip">
-                        {t}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href="/work/geofm-stf" className="more">
-                    Research notes <span>→</span>
-                  </Link>
-                </div>
-              </div>
-              <div>
-                <FusionViz />
-                <div className="metrics">
-                  <div className="metric">
-                    <div className="metric-v c">
-                      <CountUp value={5} />
-                    </div>
-                    <div className="metric-k">missing-band scenarios</div>
-                  </div>
-                  <div className="metric">
-                    <div className="metric-v">
-                      ×<CountUp value={3} />
-                    </div>
-                    <div className="metric-k">random seeds per scenario</div>
-                  </div>
-                  <div className="metric">
-                    <div className="metric-v">
-                      <CountUp value={2} />
-                    </div>
-                    <div className="metric-k">benchmark datasets (CIA, LGC)</div>
-                  </div>
-                  <div className="metric">
-                    <div className="metric-v y">
-                      <CountUp value={3} />
-                    </div>
-                    <div className="metric-k">methods: SimpleDOFA, GAN-STFM, ECPW-STFN</div>
-                  </div>
-                </div>
-              </div>
-            </article>
-
-            {/* Huifu */}
-            <article className="panel xp-small" data-reveal>
-              <div>
-                <div className="xp-meta" style={{ marginBottom: 8 }}>
-                  <span className="label">Jun – Jul 2025 · Shanghai</span>
-                </div>
-                <h3 className="xp-org" style={{ fontSize: "clamp(19px,2vw,23px)" }}>
-                  Huifu Payment
-                </h3>
+                <p className="xp-when">Jun – Jul 2025 · Shanghai</p>
+                <h3 className="xp-org xp-org-sm">Huifu Payment</h3>
                 <p className="xp-role">Cybersecurity intern</p>
               </div>
-              <p className="dim">
-                A one-month cybersecurity internship inside a payments company — early exposure to how security work
-                is run where money moves. It&apos;s the grounding I drew on a year later, when the FastJson disclosure
-                landed at RedNote.
-              </p>
+              <div className="xp-body">
+                <p>
+                  A one-month cybersecurity internship at a payments company. I supported the security team with
+                  vulnerability scans, compliance documentation and firewall rule reviews, and learned how security is
+                  handled in payment systems.
+                </p>
+              </div>
             </article>
           </div>
         </div>
@@ -291,103 +208,71 @@ export default function Home() {
       {/* -------------------------------------------------------- PROJECTS */}
       <section id="projects" className="section">
         <div className="wrap">
-          <SectionHead index="02" title="Projects" lede="Built outside work — including one you can try right now." />
+          <div className="sec-head">
+            <h2 className="sec-title">Projects</h2>
+          </div>
           <div className="proj-grid">
-            <article className="panel proj proj-wide" data-reveal>
-              <div style={{ display: "grid", gap: 14 }}>
-                <div className="xp-meta" style={{ marginBottom: 0 }}>
-                  <span className="status status-shipped">Live</span>
-                  <span className="label">NLP · web service</span>
-                </div>
-                <h3>WriteLike</h3>
-                <p>
-                  An explainable writing-style analyser. spaCy and statistical features measure the text — sentence
-                  rhythm, clause density, part-of-speech and dependency patterns, recurring lemmas — and Gemini turns
-                  those numbers into readable feedback. Works in English and, experimentally, Simplified Chinese.
-                </p>
-                <p>
-                  A FastAPI microservice on Render, called from this site with HMAC-signed requests.
-                </p>
-                <ul className="chips">
-                  {["Python", "spaCy", "FastAPI", "Gemini API", "Next.js", "HMAC signing"].map((t) => (
-                    <li key={t} className="chip">
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-                <div className="proj-links">
-                  <Link href="/projects/writelike" className="btn btn-primary">
-                    Try WriteLike <span className="arrow">→</span>
-                  </Link>
-                  <a href="https://github.com/QuantumRaC/T3xtAnlys" className="btn" {...ext}>
-                    Source
-                  </a>
-                </div>
-              </div>
-              <div className="spark" aria-label="Example WriteLike readout" role="img">
-                <span className="k">$ writelike analyse excerpt.txt</span>
-                {"\n\n"}
-                <span className="k">language ......</span> en{"\n"}
-                <span className="k">clauses/sent ..</span> <span className="y">~1.75</span>
-                {"\n"}
-                <span className="k">pacing ........</span> varied <span className="faint">(high oscillation)</span>
-                {"\n"}
-                <span className="k">motifs ........</span> <span className="c">war · true · death</span>
-                {"\n"}
-                <span className="k">tone ..........</span> reflective, analytical{"\n\n"}
-                <span className="m">→</span> vary sentence length for rhythm
-                {"\n"}
-                <span className="m">→</span> balance concise and complex vocabulary
-              </div>
-            </article>
-
-            <article className="panel proj" data-reveal>
-              <div className="xp-meta" style={{ marginBottom: 0 }}>
-                <span className="status status-planned">Open-source release planned</span>
-              </div>
-              <h3>Desktop performance panel</h3>
+            <article className="panel proj">
+              <h3>WriteLike</h3>
               <p>
-                Custom Übersicht widgets for my Mac: live CPU, memory and network sparklines with a rolling sample
-                history, top processes by CPU, and a matching news widget. Three themes share one config — including
-                an automatic theme that samples the wallpaper&apos;s colours using only the Python standard library.
-                I debugged positioning and a wallpaper-path change on a current macOS release along the way.
+                A web tool that describes the writing style of a passage: it measures things like sentence length and
+                word choice, then uses Google&apos;s Gemini to explain the results in plain language. Works in English
+                and Simplified Chinese.
               </p>
-              <SparkPanel />
-              <ul className="chips">
-                {["Übersicht", "Shell", "Python stdlib", "macOS"].map((t) => (
-                  <li key={t} className="chip">
-                    {t}
-                  </li>
-                ))}
-              </ul>
+              <Stack items={["Python", "spaCy", "FastAPI", "Next.js"]} />
+              <div className="proj-links">
+                <Link href="/projects/writelike" className="btn btn-primary">
+                  Try WriteLike
+                </Link>
+                <a href="https://github.com/QuantumRaC/T3xtAnlys" className="link" {...ext}>
+                  View the source
+                </a>
+              </div>
             </article>
 
-            <div className="proj-stack">
-              <article className="panel proj" data-reveal style={{ ["--d" as string]: "80ms" }}>
-                <h3>OBJ Mesh Renderer</h3>
-                <p>
-                  A C++ / OpenGL renderer: OBJ loading, UV-mapped textures, lighting, backface culling, PN-triangle
-                  subdivision and projection transforms.
-                </p>
-                <div className="proj-links">
-                  <a href="https://github.com/QuantumRaC/OBJ-Mesh-Renderer" className="more" {...ext}>
-                    GitHub <span>↗</span>
-                  </a>
-                </div>
-              </article>
-              <article className="panel proj" data-reveal style={{ ["--d" as string]: "160ms" }}>
-                <h3>ChompChompCar</h3>
-                <p>
-                  Team lead and full-stack developer on a MERN carpool-coordination app with Google Places search,
-                  calendar scheduling and authentication.
-                </p>
-                <div className="proj-links">
-                  <a href="https://github.com/QuantumRaC/SWEProject" className="more" {...ext}>
-                    GitHub <span>↗</span>
-                  </a>
-                </div>
-              </article>
-            </div>
+            <article className="panel proj">
+              <h3>ask-globe</h3>
+              <p>
+                An add-on for AI assistants such as Claude Code that answers plain-language questions using live data
+                from NASA&apos;s GLOBE Observer citizen-science programme, so people who don&apos;t write code can use
+                the data.
+              </p>
+              <Stack items={["Python", "GLOBE API", "AI agents"]} />
+              <div className="proj-links">
+                <a href="https://github.com/QuantumRaC/ask-globe" className="link" {...ext}>
+                  View on GitHub
+                </a>
+              </div>
+            </article>
+
+            <article className="panel proj">
+              <h3>Talk Art to Me</h3>
+              <p>
+                A web app that describes artworks aloud for blind and visually impaired visitors. Gemini describes
+                the whole image and each region, and you tap a region to hear it. Built at Gator Hack 2025, where it
+                won first place.
+              </p>
+              <Stack items={["Next.js", "TypeScript", "Gemini API", "Web Speech API"]} />
+              <div className="proj-links">
+                <a href="https://talk-art-to-me.vercel.app/" className="link" {...ext}>
+                  Try the demo
+                </a>
+                <a href="https://github.com/QuantumRaC/Talk-Art-to-Me" className="link" {...ext}>
+                  View the source
+                </a>
+              </div>
+            </article>
+
+            <article className="panel proj">
+              <h3>OBJ Mesh Renderer</h3>
+              <p>A 3D model renderer in C++ and OpenGL, with textures and lighting.</p>
+              <div className="proj-links">
+                <a href="https://github.com/QuantumRaC/OBJ-Mesh-Renderer" className="link" {...ext}>
+                  View on GitHub
+                </a>
+              </div>
+            </article>
+
           </div>
         </div>
       </section>
@@ -395,42 +280,32 @@ export default function Home() {
       {/* ---------------------------------------------------------- SKILLS */}
       <section id="skills" className="section">
         <div className="wrap">
-          <SectionHead index="03" title="Skills" lede="Every skill sits next to the place it was actually used." />
-          <div className="skills">
-            {skills.map((g, i) => (
-              <div key={g.group} className="panel skill-group" data-reveal style={{ ["--d" as string]: `${i * 70}ms` }}>
-                <h3>{g.group}</h3>
-                <ul className="skill-rows">
-                  {g.rows.map(([s, ev]) => (
-                    <li key={s}>
-                      <span>{s}</span>
-                      <span className="ev">{ev}</span>
-                    </li>
-                  ))}
-                </ul>
+          <div className="sec-head sec-head-row">
+            <h2 className="sec-title">Skills</h2>
+            {site.resume ? (
+              <a className="btn" href={site.resume} {...ext}>
+                Download my CV (PDF)
+              </a>
+            ) : null}
+          </div>
+          <dl className="panel skill-list">
+            {skills.map(([group, items]) => (
+              <div key={group}>
+                <dt>{group}</dt>
+                <dd>{items}</dd>
               </div>
             ))}
-            <div className="panel skill-group" data-reveal style={{ gridColumn: "1 / -1" }}>
-              <h3>Spoken languages</h3>
-              <div className="lang-row">
-                <span>
-                  English <span className="faint">— fluent / native</span>
-                </span>
-                <span>
-                  Mandarin 中文 <span className="faint">— fluent / native</span>
-                </span>
-                <span>Japanese 日本語</span>
-              </div>
-            </div>
-          </div>
+          </dl>
         </div>
       </section>
 
       {/* --------------------------------------------------------- WRITING */}
       <section id="writing" className="section">
         <div className="wrap">
-          <SectionHead index="04" title="Writing" lede="Notes on what I build and break — engineering write-ups, security labs, and project post-mortems." />
-          <ul className="posts" data-reveal>
+          <div className="sec-head">
+            <h2 className="sec-title">Writing</h2>
+          </div>
+          <ul className="posts">
             {posts.map((p) => (
               <li key={p.slug}>
                 <Link href={`/blog/${p.slug}`} className="post-row">
@@ -442,144 +317,45 @@ export default function Home() {
               </li>
             ))}
           </ul>
-          <div style={{ marginTop: 22, textAlign: "right" }}>
+          <p style={{ marginTop: 22 }}>
             <Link href="/blog" className="more">
-              All writing <span>→</span>
+              Read all posts
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------- EDUCATION */}
-      <section id="education" className="section">
-        <div className="wrap">
-          <SectionHead index="05" title="Education" />
-          <div className="two-col">
-            <div className="panel" data-reveal>
-              <h3 className="xp-org">University of Florida</h3>
-              <p className="xp-role">Bachelor of Science, Computer Science</p>
-              <dl className="kv" style={{ marginTop: 22 }}>
-                <dt>Graduating</dt>
-                <dd>May 2027</dd>
-                <dt>GPA</dt>
-                <dd>
-                  <span className="y mono">3.86</span> / 4.00
-                </dd>
-                <dt>Honours</dt>
-                <dd>President&apos;s Honor Roll · Dean&apos;s List</dd>
-                <dt>Awards</dt>
-                <dd>First place, Gator Hack 2025</dd>
-              </dl>
-              {site.showMasters ? (
-                <p className="note" style={{ marginTop: 22 }}>
-                  <b>Planned:</b> UNSW Master of Information Technology (AI), Term 3 2027 — under consideration.
-                </p>
-              ) : null}
-            </div>
-            <div className="panel" data-reveal style={{ ["--d" as string]: "80ms" }}>
-              <h3 className="label" style={{ color: "var(--fg-dim)" }}>
-                Coursework themes
-              </h3>
-              <ul className="themes">
-                {courseThemes.map(([k, v]) => (
-                  <li key={k}>
-                    <b>{k}</b>
-                    <span>{v}</span>
-                  </li>
-                ))}
-                <li>
-                  <b>Maths</b>
-                  <span>Calculus 1–3, computational linear algebra, engineering statistics, calculus-based physics</span>
-                </li>
-              </ul>
-              <details className="courses">
-                <summary>Full computer science course list ({courses.length})</summary>
-                <table className="course-table">
-                  <tbody>
-                    {courses.map((c) => (
-                      <tr key={c.code}>
-                        <td>{c.term}</td>
-                        <td>{c.code}</td>
-                        <td>
-                          {c.title}
-                          {c.status ? <span className="faint"> · {c.status}</span> : null}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </details>
-            </div>
-          </div>
+          </p>
         </div>
       </section>
 
       {/* ----------------------------------------------------------- ABOUT */}
       <section id="about" className="section">
         <div className="wrap">
-          <SectionHead index="06" title="About" />
+          <div className="sec-head">
+            <h2 className="sec-title">About</h2>
+          </div>
           <div className="two-col">
-            <div className="panel prose-block" data-reveal style={site.headshot ? { display: "grid", gap: 24 } : undefined}>
+            <div className="panel prose-block" style={site.headshot ? { display: "grid", gap: 24 } : undefined}>
               {site.headshot ? <AsciiPortrait src={site.headshot} alt="Portrait of Cynthia Yao" /> : null}
               <div className="prose-block">
                 <p>
-                  I&apos;m an <strong>Australian citizen</strong> who left Australia at three, then studied and worked
-                  across the <strong>United States and China</strong>. After graduating I&apos;m moving to Sydney — a
-                  deliberate return to a country I haven&apos;t lived in since I was small.
+                  I was born in Shanghai, spent part of my early childhood in Australia, and have since studied and
+                  worked in China and the United States. I&apos;m open to work in any of the three.
                 </p>
                 <p>
-                  What ties my work together is a liking for systems that have to be right: a payment pre-query where
-                  every method must resolve, a migration finished inside a disclosure window, a benchmark run over
-                  multiple seeds so one lucky run can&apos;t pass for a result.
-                </p>
-                <p>
-                  Outside of that I sketch, write poetry and play games. I build and customise my own desktop tools,
-                  and I&apos;d rather fork free and open-source software and shape it than settle for a default.
+                  Outside work I sketch, write poetry and play games. I also like spending free time exploring and
+                  playing around with open-source projects.
                 </p>
               </div>
             </div>
-            <div style={{ display: "grid", gap: "clamp(16px, 2.4vw, 24px)", alignContent: "start" }}>
-              <div className="panel" data-reveal style={{ ["--d" as string]: "80ms" }}>
-                <h3 className="label" style={{ color: "var(--fg-dim)", marginBottom: 18 }}>
-                  What I&apos;m looking for
-                </h3>
+            <div className="about-side">
+              <div className="panel">
+                <h3 className="panel-title">What I&apos;m looking for</h3>
                 <dl className="kv">
                   <dt>Roles</dt>
-                  <dd>Backend &amp; payments engineering · applied ML · geospatial &amp; environmental AI</dd>
+                  <dd>Backend and payments engineering, applied ML, geospatial and environmental AI</dd>
                   <dt>Type</dt>
-                  <dd>Internships, and graduate / junior roles</dd>
+                  <dd>Internships, and graduate or junior roles</dd>
                   <dt>Location</dt>
-                  <dd>Open to all locations · relocating to Sydney</dd>
-                  <dt>Work rights</dt>
-                  <dd>Australian citizen — full work rights in Australia, no sponsorship required</dd>
+                  <dd>US, Shanghai or Australia</dd>
                 </dl>
-              </div>
-              <div className="panel" data-reveal style={{ ["--d" as string]: "160ms" }}>
-                <h3 className="label" style={{ color: "var(--fg-dim)", marginBottom: 18 }}>
-                  Coming next
-                </h3>
-                <ul className="next-list">
-                  <li>
-                    <span>GeoFM-STF paper</span>
-                    <span>
-                      <span className="status status-progress">In preparation</span>
-                    </span>
-                  </li>
-                  <li>
-                    <span>Desktop performance panel, open-sourced</span>
-                    <span>
-                      <span className="status status-planned">Planned</span>
-                    </span>
-                  </li>
-                  {site.showSeniorProject ? (
-                    <li>
-                      <span>Tropical plants benchmark dataset — senior project</span>
-                      <span>
-                        <span className="status status-planned">Planned</span>
-                      </span>
-                    </li>
-                  ) : null}
-                </ul>
               </div>
             </div>
           </div>
@@ -589,56 +365,41 @@ export default function Home() {
       {/* --------------------------------------------------------- CONTACT */}
       <section id="contact" className="section">
         <div className="wrap">
-          <SectionHead index="07" title="Contact" />
-          <div className="contact" data-reveal>
+          <div className="sec-head">
+            <h2 className="sec-title">Contact</h2>
+          </div>
+          <div className="contact">
             <div>
-              <p className="contact-big">
-                Building something that <span className="y">has to be right?</span>
-              </p>
-              <p className="dim" style={{ marginTop: 18, maxWidth: "48ch" }}>
-                Email is the fastest way to reach me. I&apos;m happy to talk about internships, graduate roles,
-                research, or anything on this page.
-              </p>
+              <p className="dim">Email me about internships, graduate roles or research.</p>
               <a href={`mailto:${site.email}`} className="contact-email">
                 {site.email}
               </a>
             </div>
             <ul className="contact-links">
               <li>
-                <a href={`mailto:${site.email}`}>
-                  <span className="label">Email</span>
-                  <span className="v">{site.email}</span>
-                  <span className="go">→</span>
-                </a>
-              </li>
-              <li>
                 <a href={site.linkedin} {...ext}>
-                  <span className="label">LinkedIn</span>
+                  <span className="k">LinkedIn</span>
                   <span className="v">in/xinyi-yao</span>
-                  <span className="go">↗</span>
                 </a>
               </li>
               <li>
                 <a href={site.github} {...ext}>
-                  <span className="label">GitHub</span>
+                  <span className="k">GitHub</span>
                   <span className="v">@{site.githubHandle}</span>
-                  <span className="go">↗</span>
                 </a>
               </li>
               {site.resume ? (
                 <li>
                   <a href={site.resume} {...ext}>
-                    <span className="label">Résumé</span>
+                    <span className="k">Résumé</span>
                     <span className="v">PDF</span>
-                    <span className="go">↓</span>
                   </a>
                 </li>
               ) : null}
               <li>
                 <Link href="/blog">
-                  <span className="label">Writing</span>
+                  <span className="k">Writing</span>
                   <span className="v">raccfields.dev/blog</span>
-                  <span className="go">→</span>
                 </Link>
               </li>
             </ul>

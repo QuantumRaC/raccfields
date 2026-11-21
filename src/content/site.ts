@@ -8,7 +8,7 @@ export const site = {
   url: "https://raccfields.dev",
   title: "Cynthia Yao — Backend & payments engineering · Geospatial ML research",
   description:
-    "Final-year UF computer science student (May 2027). Shipped payment services on live traffic at RedNote; now researching geospatial foundation models for satellite imagery. Australian citizen relocating to Sydney.",
+    "Final-year UF computer science student (May 2027). Shipped payment services on live traffic at RedNote; now researching geospatial foundation models for satellite imagery. Open to work in the US, Shanghai or Australia.",
 
   email: "yao.xinyi@ufl.edu",
   github: "https://github.com/QuantumRaC",
@@ -23,8 +23,6 @@ export const site = {
 
   /** Planned UNSW Master of IT — off until you decide it should be public. */
   showMasters: false,
-  /** Tropical plants benchmark (planned senior project) in the "Coming next" list. */
-  showSeniorProject: true,
 };
 
 export type NavItem = { href: string; label: string; id: string };

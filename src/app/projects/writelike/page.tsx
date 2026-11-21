@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Scramble from "@/components/Scramble";
 import WriteLikeTool from "./WriteLikeTool";
 
 export const metadata: Metadata = {
@@ -20,15 +19,14 @@ export default function WriteLikePage() {
           <span>/</span>
           <span>writelike</span>
         </nav>
-        <Scramble as="h1" className="page-title" text="WriteLike" />
+        <h1 className="page-title">WriteLike</h1>
         <p className="page-sub">
-          Paste a passage and see <em>why</em> it reads the way it does — rhythm, clause density, word choice and tone —
-          measured with classical NLP, then explained in plain language.
+          Paste a passage to see how it is built: rhythm, clause density, word choice and tone, measured with spaCy
+          and explained in plain language by Gemini.
         </p>
         <div className="page-meta">
-          <span className="status status-shipped">Live · beta</span>
           <a href="https://github.com/QuantumRaC/T3xtAnlys" className="label link" target="_blank" rel="noreferrer">
-            Source on GitHub ↗
+            View the source on GitHub
           </a>
         </div>
       </header>
@@ -47,7 +45,7 @@ export default function WriteLikePage() {
           </h2>
           <div className="cs-body">
             <p>
-              WriteLike looks at the shape of a piece of writing — sentence length, rhythm, tone and word choice — and
+              WriteLike looks at the shape of a piece of writing (sentence length, rhythm, tone and word choice) and
               turns those patterns into feedback. It doesn&apos;t judge whether writing is good or bad; it shows{" "}
               <strong>how</strong> it works, so you can borrow a rhythm or a structure while keeping your own voice.
             </p>
@@ -63,7 +61,7 @@ export default function WriteLikePage() {
               measurement deterministic makes the feedback explainable instead of a black-box opinion.
             </p>
             <div className="spark" style={{ whiteSpace: "pre-wrap" }}>
-              <span className="y">detect   </span> langdetect — English / Simplified Chinese{"\n"}
+              <span className="y">detect   </span> langdetect, English / Simplified Chinese{"\n"}
               <span className="y">parse    </span> spaCy 3.8 (en_core_web_sm, zh_core_web_sm), TextBlob sentiment{"\n"}
               <span className="y">measure  </span> sentence &amp; token lengths, clause density, POS &amp; dependency
               distributions, tense, lemma motifs{"\n"}
@@ -74,7 +72,7 @@ export default function WriteLikePage() {
         </section>
         <section className="cs-grid">
           <h2>
-            <span>03</span>Read more
+            <span>03</span>Posts about WriteLike
           </h2>
           <div className="cs-body">
             <ul className="posts">
@@ -82,7 +80,7 @@ export default function WriteLikePage() {
                 <Link href="/blog/building-writelike" className="post-row">
                   <span className="post-date">Story</span>
                   <span className="post-title">The Story of WriteLike</span>
-                  <span className="post-meta">→</span>
+                  <span className="post-meta" />
                   <span className="post-desc">Motivation, experiments, deployment and current limitations.</span>
                 </Link>
               </li>
@@ -90,7 +88,7 @@ export default function WriteLikePage() {
                 <Link href="/blog/why-writelike-works" className="post-row">
                   <span className="post-date">Deep dive</span>
                   <span className="post-title">How it works, why it works</span>
-                  <span className="post-meta">→</span>
+                  <span className="post-meta" />
                   <span className="post-desc">The NLP pipeline, feature engineering and safeguards.</span>
                 </Link>
               </li>

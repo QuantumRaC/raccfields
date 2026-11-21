@@ -68,7 +68,7 @@ At one point, my service kept failing to generate responses. Possible causes inc
 
 Eventually, I discovered the problem was downstream: I had exceeded my Gemini API quota. At first this was confusing, since I had only sent 30–40 requests a day while testing. The real cause was more serious: during deployment, I had accidentally committed my API key to GitHub. Although I quickly moved it into a `.env` file, traffic spiked to 13k requests per day before I revoked the key. I had to rotate credentials and reconfigure my API usage.  
 
-This incident reinforced the importance of **Secret Management** — keys should never be pushed to public repos. It also showed me how vulnerable services are to **Denial-of-Service risks**. To mitigate abuse, I added **Rate Limiting** with SlowAPI (30 requests per minute, 50 per day per IP). This protected both my backend and downstream services like Gemini.  
+This incident reinforced the importance of **Secret Management** — keys should never be pushed to public repos. It also showed me how vulnerable services are to **Denial-of-Service risks**. To mitigate abuse, I added **Rate Limiting** with SlowAPI (30 requests per minute, 500 per day per IP). This protected both my backend and downstream services like Gemini.  
 
 ---
 

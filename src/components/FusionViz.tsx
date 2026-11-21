@@ -144,10 +144,6 @@ export default function FusionViz() {
       <div className="ascii-frame">
         <pre ref={preRef} aria-hidden dangerouslySetInnerHTML={{ __html: frame(PW + 4, 3, rng(1)) }} />
       </div>
-      <figcaption className="ascii-cap">
-        <span className="label">Schematic · synthetic fields, not lab data</span>
-        <span className="label">fine t1 + coarse t2 → fine t2</span>
-      </figcaption>
       <p className="sr-only">
         Diagram: a fine-resolution image from an earlier date and a coarse image from the target date are
         fused to predict a fine image at the target date, with one spectral band withheld.
