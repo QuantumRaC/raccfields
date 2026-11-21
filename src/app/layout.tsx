@@ -1,76 +1,54 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
+import Effects from "@/components/Effects";
+import { site } from "@/content/site";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const sans = Geist({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
+const mono = Geist_Mono({ variable: "--font-mono", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Cynthia Yao | Cybersecurity & AI Developer",
-  description:
-    "Personal site of Cynthia Yao — Junior CS major at the University of Florida. Cybersecurity enthusiast, full-stack developer, and AI/ML engineer. Explore projects, writeups, and more.. at RaccFields.",
+  metadataBase: new URL(site.url),
+  title: { default: site.title, template: "%s — Cynthia Yao" },
+  description: site.description,
+  authors: [{ name: site.name, url: site.url }],
   openGraph: {
-    title: "Cynthia Yao | Cybersecurity & AI Developer",
-    description:
-      "Junior CS major at UF — passionate about cybersecurity, full-stack development, and AI/ML. Portfolio, projects, and experiments at RaccFields.",
-    url: "https://raccfields.dev",
-    siteName: "RaccFields",
-    images: [
-      {
-        url: "/og-image.png", // put this file inside /public
-        width: 1200,
-        height: 630,
-        alt: "Cynthia Yao Portfolio",
-      },
-    ],
-    locale: "en_US",
+    title: site.title,
+    description: site.description,
+    url: site.url,
+    siteName: site.name,
+    locale: "en_AU",
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Cynthia Yao | Cybersecurity & AI Developer",
-    description:
-      "CS major at UF. Cybersecurity enthusiast, full-stack developer, and AI/ML engineer. Projects & experiments at RaccFields.",
-    images: ["/og-image.png"],
-  },
+  twitter: { card: "summary_large_image", title: site.title, description: site.description },
+  alternates: { types: { "application/rss+xml": "/blog/rss.xml" } },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#07070a",
+  colorScheme: "dark",
+};
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          value={{
-            light: "light",
-            dark: "dark",
-            red: "red",
-          }}
-          disableTransitionOnChange
-        >
-          {children}
+    <html lang="en-AU" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Lets CSS hide reveal-on-scroll content only when JS is present to reveal it. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
+      <body>
+        <a className="skip-link" href="#main">
+          Skip to content
+        </a>
+        <Nav />
+        <main id="main">{children}</main>
+        <Footer />
+        <Effects />
         <SpeedInsights />
-        </ThemeProvider>
-        
       </body>
     </html>
   );
