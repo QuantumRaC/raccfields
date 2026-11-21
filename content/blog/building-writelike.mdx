@@ -82,7 +82,7 @@ Once the microservice was live, I spent a handful of hours debugging the integra
 3. The backend calls Gemini with that summary and gets back the human-readable feedback.
 4. FastAPI returns metrics + Gemini’s text to the frontend, which renders the advice and example rewrites.
 
-Because I was calling a downstream model, I added simple rate-limiting with SlowAPI (30 requests/min, 50/day per IP) to protect both my service and the Gemini quota. The limits are deliberately conservative for beta users — enough to stop accidental DoS and keep costs predictable.
+Because I was calling a downstream model, I added simple rate-limiting with SlowAPI (30 requests/min, 500/day per IP) to protect both my service and the Gemini quota. The limits are deliberately conservative for beta users — enough to stop accidental DoS and keep costs predictable.
 
 It meant a lot to me to see the service live and have my friends from the other side of the globe try it on their phones. Learning-wise, this piece of the project also highlights the importance of picking pragmatic tools that match the scale of the problem, designing a clean API boundary between front end and analyzer logic, and iteratively debugging and harden the integration. 
 

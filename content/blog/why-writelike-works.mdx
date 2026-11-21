@@ -120,7 +120,6 @@ Concretely, I treat each document as a small structured object of numeric featur
 * **Normalization:** counts are normalized by sentence or token counts so features are comparable across documents of different lengths.
 * **Compact summary JSON:** features are serialized to a small JSON payload (a few KB at most) that I send to the LLM rather than the whole document. This keeps token use — and costs — low.
 * **Feature sparsity control:** for lemma motifs I cap the list (top N) and drop extremely rare items; for POS/dependency features I keep only the most frequent labels to reduce noise.
-* **Testability:** each numeric feature has a small unit test (sanity checks on a toy string) so I can detect regressions when models or spaCy versions change. Recruiters like this — it shows engineering discipline.
 * **Feature composition:** in practice I don’t hand a single flat vector to the user; I group features (rhythm, syntax, lexicon) and provide summary statistics and simple explanations the LLM can translate into advice.
 
 **Example (very small) payload I send to the LLM**
@@ -142,16 +141,15 @@ This compact summary is enough for the LLM to produce targeted advice: “Your s
 
 * It’s **explainable**: every recommendation maps back to a measurable feature you can inspect and test.
 * It’s **efficient**: fewer tokens to the LLM = lower cost + lower latency.
-* It’s **stable**: deterministic spaCy parsing and numeric features let me write unit tests and detect regressions automatically.
+* It’s **stable**: deterministic spaCy parsing gives the same numeric features for the same text, so changes in the output can be traced to the input or the prompt.
 * It’s **compositional**: you can mix and match features (e.g., rhythm + POS) to target specific stylistic edits.
 
 ---
 
 ### Why this approach is robust vs naive LLM-only approaches?
 
-* **Determinism & interpretability:** spaCy-derived signals are deterministic and testable, so you can explain *why* the LLM advised X.
-* **Token-efficiency / cost control:** sending a tight, structured summary to the LLM is far cheaper and faster than sending whole documents — and reduces noisy hallucination risk. (`main.py` and `app.py` show that you send a compact prompt, not the entire text).
-* **Easier testing & unitization:** stats are numeric and can be unit tested (you already have small sanity checks in your repo) rather than relying wholly on subjective LLM outputs.
+* **Determinism & interpretability:** spaCy-derived signals are deterministic and inspectable, so you can explain *why* the LLM advised X.
+* **Token-efficiency / cost control:** sending a tight, structured summary to the LLM is far cheaper and faster than sending whole documents — and reduces noisy hallucination risk. (In the code, `main.py` and `app.py` build a compact prompt rather than sending the entire text.)
 
 ---
 
@@ -172,9 +170,8 @@ I want to be upfront about what this tool is built to do, and where it stops. In
 
 **Practical safeguards & ethical choices I built in**
 
-* **Transparency:** the UI shows both the numeric features and the generated advice so users see the source signals behind a recommendation. This makes the output interpretable and less like a magical rewrite.
-* **Privacy & rate-limits:** I enforce per-IP rate limits (beta caps) and don’t persist submitted text beyond short-lived analysis caches (when caching is enabled). If you want longer retention, there should be explicit consent.
-* **Plagiarism & attribution guidance:** rewrites are meant as *illustrative* templates — I include a short UI note encouraging users to rephrase and credit long-form inspiration when appropriate.
+* **Transparency:** the generated advice is built from measurable features, so each recommendation can be traced back to a signal in the text rather than reading like a magical rewrite.
+* **Rate limits:** I enforce per-IP rate limits (30 requests a minute, 500 a day) to protect the service and the Gemini quota.
 * **Multilingual honesty:** I mark Chinese analysis as experimental in the UI — I don’t hide model uncertainty. That’s important: being explicit about where the tool is reliable and where it isn’t builds trust.
 * **No hallucination dependency:** because the LLM gets a compact, structured prompt (not the entire document), the generative layer’s role is to *interpret statistics*, not invent factual claims about the author or text.
 
